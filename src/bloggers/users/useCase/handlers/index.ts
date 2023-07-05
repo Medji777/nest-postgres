@@ -1,0 +1,1 @@
+export {BanUserCommandHandler} from './banUser.command-handler'
