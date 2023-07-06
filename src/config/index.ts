@@ -11,4 +11,9 @@ export const settings = {
   EMAIL_USER: process.env.EMAIL_USER,
   EMAIL_PASS: process.env.EMAIL_PASS,
   EMAIL_BASE_URI: process.env.EMAIL_BASE_URI,
+  PG_HOST: process.env.PG_HOST || 'localhost',
+  PG_USER: process.env.PG_USER || 'nest',
+  PG_PASSWORD: process.env.PG_PASSWORD || 'nest',
+  PG_DB_NAME: process.env.PG_DB_NAME || 'nest',
+  PG_PORT: +process.env.PG_PORT || 5433
 };
