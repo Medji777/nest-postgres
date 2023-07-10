@@ -37,6 +37,7 @@ const BloggerModule = [BloggerBlogModule, BloggerUsersModule]
       username: settings.PG_USER,
       password: settings.PG_PASSWORD,
       database: settings.PG_DB_NAME,
+      ssl: process.env.PG_SSL === 'true',
       autoLoadEntities: false,
       synchronize: false,
     }),
