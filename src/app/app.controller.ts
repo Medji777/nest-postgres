@@ -1,4 +1,6 @@
 import { Controller, Delete, Get, HttpCode, HttpStatus } from '@nestjs/common';
+import {InjectDataSource} from "@nestjs/typeorm";
+import {DataSource} from "typeorm";
 import { AppService } from './app.service';
 import { BlogsService } from '../public/blogs/blogs.service';
 import { PostsService } from '../public/posts/posts.service';
@@ -15,6 +17,7 @@ export class AppController {
     private readonly commentsService: CommentsService,
     private readonly userService: UsersService,
     private readonly securityService: SecurityService,
+    @InjectDataSource() private readonly dataSource: DataSource
   ) {}
 
   @Get()
@@ -33,5 +36,10 @@ export class AppController {
     await this.commentsService.deleteAllLikes();
     await this.userService.deleteAll();
     await this.securityService.deleteAll();
+    await this.dataSource.query(`TRUNCATE "Users" CASCADE`);
+    await this.dataSource.query(`TRUNCATE "UsersBlogsBan" CASCADE`);
+    await this.dataSource.query(`TRUNCATE "Security" CASCADE`);
+    await this.dataSource.query(`TRUNCATE "Posts" CASCADE`);
+    await this.dataSource.query(`TRUNCATE "Blogs" CASCADE`);
   }
 }

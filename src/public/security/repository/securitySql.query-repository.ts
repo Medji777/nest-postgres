@@ -15,7 +15,7 @@ export class SecuritySqlQueryRepository {
             select * from "Security" 
             where "userId"='${userId}' and "expiredTokenDate" > to_timestamp(${Date.now() / 1000.0})
         `;
-        const [data]: SecuritySqlType[][] = await this.dataSource.query(query)
+        const data: SecuritySqlType[] = await this.dataSource.query(query)
         if(!data.length) return []
         return data.map(this._deviceModelMap)
     }

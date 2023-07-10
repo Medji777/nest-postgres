@@ -5,23 +5,23 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { SecurityQueryRepository } from '../repository/security.query-repository';
 import { Request } from 'express';
+import { SecuritySqlQueryRepository } from "../repository/securitySql.query-repository";
 
 @Injectable()
 export class CheckSessionGuard implements CanActivate {
   constructor(
-    private readonly securityQueryRepository: SecurityQueryRepository
+    private readonly securitySqlQueryRepository: SecuritySqlQueryRepository
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req: Request<{ deviceId: string }> = context.switchToHttp().getRequest();
-    const isInclude = await this.securityQueryRepository.checkSessionByDeviceId(
+    const isInclude = await this.securitySqlQueryRepository.checkSessionByDeviceId(
       req.params.deviceId,
     );
     if (!isInclude) {
       throw new NotFoundException();
     }
-    const session = await this.securityQueryRepository.findSession(
+    const session = await this.securitySqlQueryRepository.findSession(
       req.user.userId,
       req.params.deviceId,
     );
