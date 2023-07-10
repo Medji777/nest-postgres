@@ -34,7 +34,7 @@ export class SecuritySqlQueryRepository {
     async checkSessionByDeviceId(deviceId: string): Promise<boolean> {
         const query = `select count(*) from "Security" where "deviceId"='${deviceId}'`;
         const [data] = await this.dataSource.query(query)
-        return !!data.count
+        return !!+data.count
     }
 
     private _deviceModelMap(model: SecuritySqlType): DeviceViewModel {

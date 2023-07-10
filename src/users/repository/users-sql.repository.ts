@@ -49,7 +49,6 @@ export class UsersSqlRepository {
                     where u.login = $1 or u.email = $1
                     `;
         const [data]: UsersSqlType[] = await this.dataSource.query(query,[uniqueField])
-        console.log(data)
         return data
     }
     async getUserByUUIDCode(code: string): Promise<UsersSqlType> {
@@ -58,7 +57,6 @@ export class UsersSqlRepository {
                     where u."emailConfirmationCode" = $1 or u."passwordConfirmationCode" = $1
                     `;
         const [data]: UsersSqlType[] = await this.dataSource.query(query,[code])
-        console.log(data)
         return data
     }
     async findById(id: string): Promise<UsersSqlType> {
