@@ -30,7 +30,7 @@ export class CreateAuthCommandHandler implements ICommandHandler<CreateAuthComma
             refreshToken,
             options: {
                 httpOnly: true,
-                secure: false,
+                secure: true,
             },
         };
     }
