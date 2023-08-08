@@ -1,4 +1,17 @@
-import {Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, UseGuards} from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    HttpCode,
+    HttpStatus,
+    Param,
+    ParseUUIDPipe,
+    Post,
+    Put,
+    Query,
+    UseGuards
+} from "@nestjs/common";
 import {CommandBus} from "@nestjs/cqrs";
 import {
     CreateBlogCommand,
@@ -45,20 +58,33 @@ export class BlogsController {
     }
 
     @UseGuards(JwtAccessGuard)
+    @Get(':blogId/posts')
+    @HttpCode(HttpStatus.OK)
+    async getPostsForBlog(
+        @Param('blogId', ParseUUIDPipe) id: string,
+        @Query() queryDTO: PaginationDto,
+        @User() user: Users
+    ) {
+
+    }
+
+    @UseGuards(JwtAccessGuard)
     @Post()
     @HttpCode(HttpStatus.CREATED)
     async createBlog(
         @Body() body: BlogsInputModelDTO,
         @User() user: Users
     ) {
-        return this.commandBus.execute(new CreateBlogCommand(body, user))
+        return this.commandBus.execute(
+            new CreateBlogCommand(body, user)
+        )
     }
 
     @UseGuards(JwtAccessGuard)
     @Post(':blogId/posts')
     @HttpCode(HttpStatus.CREATED)
     async createNewPostByBlog(
-        @Param('blogId') id: string,
+        @Param('blogId', ParseUUIDPipe) id: string,
         @Body() bodyDTO: BlogPostInputModelDto,
         @User() user: Users
     ) {
@@ -71,7 +97,7 @@ export class BlogsController {
     @Put(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
     async updateBlog(
-        @Param('id') id: string,
+        @Param('id', ParseUUIDPipe) id: string,
         @Body() bodyDTO: BlogsInputModelDTO,
         @User() user: Users
     ) {
@@ -82,19 +108,21 @@ export class BlogsController {
     @Put(':blogId/posts/:postsId')
     @HttpCode(HttpStatus.NO_CONTENT)
     async updatePostsByBlog(
-        @Param('blogId') blogId: string,
-        @Param('postsId') postsId: string,
+        @Param('blogId', ParseUUIDPipe) blogId: string,
+        @Param('postsId', ParseUUIDPipe) postsId: string,
         @User() user: Users,
         @Body() bodyDTO: UpdatePostDto
     ) {
-        await this.commandBus.execute(new UpdatePostByBlogCommand(blogId, postsId, user.id, bodyDTO))
+        await this.commandBus.execute(
+            new UpdatePostByBlogCommand(blogId, postsId, user.id, bodyDTO)
+        )
     }
 
     @UseGuards(JwtAccessGuard)
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
     async deleteBlog(
-        @Param('id') id: string,
+        @Param('id', ParseUUIDPipe) id: string,
         @User() user: Users
     ) {
         await this.commandBus.execute(new DeleteBlogCommand(id, user.id))
@@ -104,10 +132,12 @@ export class BlogsController {
     @Delete(':blogId/posts/:postsId')
     @HttpCode(HttpStatus.NO_CONTENT)
     async deletePostsByBlog(
-        @Param('blogId') blogId: string,
-        @Param('postsId') postsId: string,
+        @Param('blogId', ParseUUIDPipe) blogId: string,
+        @Param('postsId', ParseUUIDPipe) postsId: string,
         @User() user: Users
     ) {
-        await this.commandBus.execute(new DeletePostByBlogCommand(blogId, postsId, user.id))
+        await this.commandBus.execute(
+            new DeletePostByBlogCommand(blogId, postsId, user.id)
+        )
     }
 }

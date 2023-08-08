@@ -15,6 +15,8 @@ import { CommentsLikeQueryRepository } from './like/repository/commentsLike.quer
 import { CommentsQueryRepository } from './repository/comments.query-repository';
 import { CommentsLikeService } from './like/commentsLike.service';
 import { CommentInputModelDto, LikeInputModelDto } from './dto';
+import {CommentsSqlRepository} from "./repository/commentsSql.repository";
+import {CommentsSqlQueryRepository} from "./repository/commentsSql.query-repository";
 
 type CommentPayload = CommentInputModel & CommentatorInfo & PostId & {bloggerId: string};
 
@@ -23,20 +25,20 @@ export class CommentsService {
   constructor(
     private readonly likeCalculateService: LikeCalculateService,
     private readonly commentsRepository: CommentsRepository,
+    private readonly commentsSqlRepository: CommentsSqlRepository,
+    private readonly commentsSqlQueryRepository: CommentsSqlQueryRepository,
     private readonly commentsQueryRepository: CommentsQueryRepository,
     private readonly commentsLikesService: CommentsLikeService,
     private readonly commentsLikeQueryRepository: CommentsLikeQueryRepository,
   ) {}
   async create(payload: CommentPayload): Promise<CommentDBModel> {
-    const doc = this.commentsRepository.create(
+    const data = await this.commentsSqlRepository.create(
         payload.content,
         payload.postId,
         payload.userId,
-        payload.userLogin,
         payload.bloggerId
-    );
-    await this.commentsRepository.save(doc);
-    return this._likeCreateTransform(this._mapComments(doc));
+    )
+    return this.commentsSqlQueryRepository.findById(data.id)
   }
   async update(id: string, payload: CommentInputModelDto): Promise<void> {
     const doc = await this.commentsRepository.findById(id);
@@ -78,7 +80,7 @@ export class CommentsService {
       await this.commentsLikesService.update(likeInfo, payload.likeStatus);
       lastStatus = likeInfo.myStatus;
     }
-    const likeInfoCalc = await this.likeCalculateService.getUpdatedLike(
+    const likeInfoCalc = this.likeCalculateService.getUpdatedLike(
       {
         likesCount: comment.likesInfo.likesCount,
         dislikesCount: comment.likesInfo.dislikesCount,

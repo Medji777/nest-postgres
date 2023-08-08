@@ -5,7 +5,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  Param,
+  Param, ParseUUIDPipe,
   Put,
   Req,
   SetMetadata,
@@ -14,24 +14,27 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { CommentsService } from './comments.service';
-import { CommentsQueryRepository } from './repository/comments.query-repository';
 import { CheckCommentsGuard } from './guards/checkComments.guard';
 import { CommentInputModelDto, LikeInputModelDto } from './dto';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { GetUserInterceptor } from '../auth/interceptors/getUser.interceptor';
+import { CommentsSqlQueryRepository } from "./repository/commentsSql.query-repository";
 
 @Controller('comments')
 export class CommentsController {
   constructor(
     private readonly commentsService: CommentsService,
-    private readonly commentsQueryRepository: CommentsQueryRepository,
+    private readonly commentSqlQueryRepository: CommentsSqlQueryRepository
   ) {}
 
   @Get(':id')
   @UseInterceptors(GetUserInterceptor)
   @HttpCode(HttpStatus.OK)
-  async getComments(@Param('id') id: string, @Req() req: Request) {
-    return this.commentsQueryRepository.findById(id, req.user?.id);
+  async getComments(
+      @Param('id', ParseUUIDPipe) id: string,
+      @Req() req: Request
+  ) {
+    return this.commentSqlQueryRepository.findById(id, req.user?.id);
   }
 
   @Put(':id')
@@ -40,7 +43,7 @@ export class CommentsController {
   @UseGuards(JwtAccessGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateComments(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() bodyDTO: CommentInputModelDto,
   ) {
     await this.commentsService.update(id, bodyDTO);
@@ -51,7 +54,7 @@ export class CommentsController {
   @UseGuards(JwtAccessGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateLikeAtComment(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() bodyDTO: LikeInputModelDto,
     @Req() req: Request,
   ) {
@@ -63,7 +66,7 @@ export class CommentsController {
   @SetMetadata('checkUser', true)
   @UseGuards(JwtAccessGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteComments(@Param('id') id: string) {
+  async deleteComments(@Param('id', ParseUUIDPipe) id: string) {
     await this.commentsService.delete(id);
   }
 }

@@ -29,6 +29,8 @@ import {Blogs, BlogsSchema} from "../../public/blogs/entity/blogs.schema";
 import {UsersSqlQueryRepository} from "../../users/repository/users-sql.query-repository";
 import {UsersSqlRepository} from "../../users/repository/users-sql.repository";
 import {SecuritySqlRepository} from "../../public/security/repository/securitySql.repository";
+import {PostsSqlRepository} from "../../public/posts/repository/postsSql.repository";
+import {CommentsSqlRepository} from "../../public/comments/repository/commentsSql.repository";
 
 const CommandHandlers = [
     CreateUserCommandHandler,
@@ -44,7 +46,9 @@ const Repository = [
     SecuritySqlRepository,
     SecurityRepository,
     CommentsRepository,
+    CommentsSqlRepository,
     PostsRepository,
+    PostsSqlRepository,
     CommandRepository,
     BlogsRepository
 ]

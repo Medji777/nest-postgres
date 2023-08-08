@@ -10,24 +10,24 @@ import {
   Put,
   UseGuards,
   Req,
-  UseInterceptors,
+  UseInterceptors, ParseUUIDPipe,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { CommandBus } from "@nestjs/cqrs";
 import { CreateCommentByPostCommand, UpdateStatusLikeCommand } from "./useCase/command";
-import { PostsQueryRepository } from './repository/posts.query-repository';
 import { CommentDBModel } from '../../types/comments';
 import { CommentsQueryRepository } from '../comments/repository/comments.query-repository';
 import { QueryPostsDto, LikeInputModelDto } from './dto';
 import { CommentInputModelDto, QueryCommentsDto } from '../comments/dto';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { GetUserInterceptor } from '../auth/interceptors/getUser.interceptor';
+import {PostsSqlQueryRepository} from "./repository/postsSql.query-repository";
 
 @Controller('posts')
 export class PostsController {
   constructor(
       private commandBus: CommandBus,
-      private readonly postsQueryRepository: PostsQueryRepository,
+      private readonly postsSqlQueryRepository: PostsSqlQueryRepository,
       private readonly commentsQueryRepository: CommentsQueryRepository,
   ) {}
 
@@ -35,21 +35,24 @@ export class PostsController {
   @UseInterceptors(GetUserInterceptor)
   @HttpCode(HttpStatus.OK)
   getPosts(@Query() query: QueryPostsDto, @Req() req: Request) {
-    return this.postsQueryRepository.getAll(query, req.user?.id);
+    return this.postsSqlQueryRepository.getAll(query, req.user?.id);
   }
 
   @Get(':id')
   @UseInterceptors(GetUserInterceptor)
   @HttpCode(HttpStatus.OK)
-  async getPostById(@Param('id') id: string, @Req() req: Request) {
-    return this.postsQueryRepository.findById(id, req.user?.id);
+  async getPostById(
+      @Param('id', ParseUUIDPipe) id: string,
+      @Req() req: Request
+  ) {
+    return this.postsSqlQueryRepository.findById(id, req.user?.id);
   }
 
   @Get('/:id/comments')
   @UseInterceptors(GetUserInterceptor)
   @HttpCode(HttpStatus.OK)
   async getCommentByPost(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Query() query: QueryCommentsDto,
     @Req() req: Request,
   ) {
@@ -64,7 +67,7 @@ export class PostsController {
   @UseGuards(JwtAccessGuard)
   @HttpCode(HttpStatus.CREATED)
   async createCommentByPost(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() bodyDTO: CommentInputModelDto,
     @Req() req: Request,
   ): Promise<CommentDBModel> {
@@ -77,7 +80,7 @@ export class PostsController {
   @UseGuards(JwtAccessGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateStatusLike(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() bodyDTO: LikeInputModelDto,
     @Req() req: Request,
   ) {

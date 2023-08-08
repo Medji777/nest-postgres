@@ -9,6 +9,7 @@ import { PostsModule } from '../posts/posts.module';
 import { UsersModule } from '../../users/users.module';
 import { PaginationService } from '../../applications/pagination.service';
 import { JwtService } from '../../applications/jwt.service';
+import { BlogsSqlQueryRepository } from "./repository/blogsSql.query-repository";
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { JwtService } from '../../applications/jwt.service';
     BlogsService,
     BlogsRepository,
     BlogsQueryRepository,
+    BlogsSqlQueryRepository,
     PaginationService,
     JwtService,
   ],

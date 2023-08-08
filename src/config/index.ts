@@ -15,5 +15,5 @@ export const settings = {
   PG_USER: process.env.PG_USER || 'nest',
   PG_PASSWORD: process.env.PG_PASSWORD || 'nest',
   PG_DB_NAME: process.env.PG_DB_NAME || 'nest',
-  PG_PORT: +process.env.PG_PORT || 5433
+  PG_PORT: +(process.env.PG_PORT || 5433)
 };

@@ -11,6 +11,9 @@ import {UsersQueryRepository} from "./repository/users.query-repository";
 import {PaginationService} from "../../applications/pagination.service";
 import {JwtAccessStrategy} from "../../public/auth/strategies/jwt-access.strategy";
 import {UsersModule} from "../../users/users.module";
+import {BlogsUsersBanSqlRepository} from "./repository/blogsUsersBanSql.repository";
+import {BlogsUsersBanSqlQueryRepository} from "./repository/blogsUsersBanSql.query-repository";
+import {BlogsSqlRepository} from "../../public/blogs/repository/blogsSql.repository";
 
 @Module({
     imports: [
@@ -27,6 +30,9 @@ import {UsersModule} from "../../users/users.module";
         UsersRepository,
         BlogsRepository,
         UsersQueryRepository,
+        BlogsSqlRepository,
+        BlogsUsersBanSqlRepository,
+        BlogsUsersBanSqlQueryRepository,
         BanUserCommandHandler,
         PaginationService
     ]

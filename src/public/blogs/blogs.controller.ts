@@ -5,10 +5,8 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  UseInterceptors,
+  UseInterceptors, ParseUUIDPipe,
 } from '@nestjs/common';
-import { BlogsService } from './blogs.service';
-import { BlogsQueryRepository } from './repository/blogs.query-repository';
 import { PostsQueryRepository } from '../posts/repository/posts.query-repository';
 import {
   QueryBlogsDTO,
@@ -17,35 +15,35 @@ import {
 import { GetUserInterceptor } from '../auth/interceptors/getUser.interceptor';
 import {User} from "../../utils/decorators";
 import {Users} from "../../users/entity/users.schema";
+import {BlogsSqlQueryRepository} from "./repository/blogsSql.query-repository";
 
 @Controller('blogs')
 export class BlogsController {
   constructor(
-    private readonly blogsService: BlogsService,
-    private readonly blogsQueryRepository: BlogsQueryRepository,
+    private readonly blogsSqlQueryRepository: BlogsSqlQueryRepository,
     private readonly postsQueryRepository: PostsQueryRepository,
   ) {}
 
   @Get()
   @HttpCode(HttpStatus.OK)
   async getBlogs(@Query() query: QueryBlogsDTO) {
-    return this.blogsQueryRepository.getAll(query);
+    return this.blogsSqlQueryRepository.getAll(query);
   }
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  async getBlogOnId(@Param('id') id: string) {
-    return this.blogsQueryRepository.findById(id);
+  async getBlogOnId(@Param('id', ParseUUIDPipe) id: string) {
+    return this.blogsSqlQueryRepository.findById(id);
   }
 
   @Get(':blogId/posts')
   @UseInterceptors(GetUserInterceptor)
   async getPostByBlogIdWithQuery(
-    @Param('blogId') id: string,
+    @Param('blogId', ParseUUIDPipe) id: string,
     @Query() query: QueryPostsDto,
     @User() user: Users,
   ) {
-    await this.blogsQueryRepository.findById(id);
+    await this.blogsSqlQueryRepository.findById(id);
     return this.postsQueryRepository.getPostsByBlogId(id, query, user?.id);
   }
 }

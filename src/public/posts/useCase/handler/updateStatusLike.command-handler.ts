@@ -1,52 +1,57 @@
 import {CommandHandler, ICommandHandler} from "@nestjs/cqrs";
-import {NotFoundException} from "@nestjs/common";
+import {ForbiddenException, NotFoundException} from "@nestjs/common";
 import {UpdateStatusLikeCommand} from "../command";
-import {PostsRepository} from "../../repository/posts.repository";
-import {PostsLikeRepository} from "../../like/repository/postsLike.repository";
-import {LikeCalculateService} from "../../../../applications/likeCalculate.service";
-import {LikeStatus} from "../../../../types/types";
+// import {LikeCalculateService} from "../../../../applications/likeCalculate.service";
+// import {LikeStatus} from "../../../../types/types";
+import {PostsSqlRepository} from "../../repository/postsSql.repository";
+import {PostsLikeSqlRepository} from "../../like/repository/postsLikeSql.repository";
+import {BlogsUsersBanSqlRepository} from "../../../../bloggers/users/repository/blogsUsersBanSql.repository";
 
 @CommandHandler(UpdateStatusLikeCommand)
 export class UpdateStatusLikeCommandHandler implements ICommandHandler<UpdateStatusLikeCommand> {
     constructor(
-        private postsRepository: PostsRepository,
-        private postsLikeRepository: PostsLikeRepository,
-        private likeCalculateService: LikeCalculateService,
+        private postsSqlRepository: PostsSqlRepository,
+        private postsLikeSqlRepository: PostsLikeSqlRepository,
+        private blogsUsersBanRepository: BlogsUsersBanSqlRepository,
+       // private likeCalculateService: LikeCalculateService,
     ) {}
     async execute(command: UpdateStatusLikeCommand): Promise<void> {
-        const {userId, postId, login, bodyDTO: newStatus} = command;
+        const {userId, postId, bodyDTO: newStatus} = command;
 
-        let lastStatus: LikeStatus = LikeStatus.None;
-        const post = await this.postsRepository.findById(postId);
-        if (!post) {
-            throw new NotFoundException();
-        }
+        //let lastStatus: LikeStatus = LikeStatus.None;
+        const post = await this.postsSqlRepository.findById(postId)
+        if (!post) throw new NotFoundException();
 
-        let likeInfo = await this.postsLikeRepository.findByUserIdAndPostId(userId,postId)
+        const isBanned = await this.blogsUsersBanRepository.checkBanStatusForBlog(userId,post.blogId);
+        if(isBanned) throw new ForbiddenException()
+
+        const likeInfo = await this.postsLikeSqlRepository.findByUserIdAndPostId(userId,postId)
 
         if (!likeInfo) {
-            likeInfo = await this.postsLikeRepository.create(
+            await this.postsLikeSqlRepository.create(
                 userId,
                 postId,
-                login,
                 newStatus.likeStatus,
             )
         } else {
-            lastStatus = likeInfo.myStatus;
-            likeInfo.updateStatus(newStatus.likeStatus)
+            //lastStatus = likeInfo.myStatus;
+            await this.postsLikeSqlRepository.updateStatus(
+                userId,
+                postId,
+                newStatus.likeStatus
+            )
         }
 
-        const newLikesInfo = await this.likeCalculateService.getUpdatedLike(
-            {
-                likesCount: post.extendedLikesInfo.likesCount,
-                dislikesCount: post.extendedLikesInfo.dislikesCount,
-            },
-            lastStatus,
-            newStatus.likeStatus,
-        );
-        post.updateLikeInPost(newLikesInfo);
+        // const newLikesInfo = this.likeCalculateService.getUpdatedLike(
+        //     {
+        //         likesCount: post.likesCount,
+        //         dislikesCount: post.dislikesCount,
+        //     },
+        //     lastStatus,
+        //     newStatus.likeStatus,
+        // );
+        // await this.postsSqlRepository.updateCountLikesInPost(post.id,newLikesInfo)
 
-        await this.postsLikeRepository.save(likeInfo);
-        await this.postsRepository.save(post);
+        await this.postsSqlRepository.updateCountLikesInPost1(post.id,userId)
     }
 }

@@ -16,6 +16,10 @@ import { UsersModule } from '../../users/users.module';
 import { JwtService } from '../../applications/jwt.service';
 import { PaginationService } from '../../applications/pagination.service';
 import { CheckBlogIdValidate } from "../../utils/validates";
+import {PostsSqlRepository} from "./repository/postsSql.repository";
+import {PostsLikeSqlRepository} from "./like/repository/postsLikeSql.repository";
+import {BlogsUsersBanSqlRepository} from "../../bloggers/users/repository/blogsUsersBanSql.repository";
+import {PostsSqlQueryRepository} from "./repository/postsSql.query-repository";
 
 @Module({
   imports: [
@@ -30,7 +34,11 @@ import { CheckBlogIdValidate } from "../../utils/validates";
   providers: [
     PostsService,
     PostsRepository,
+    PostsSqlRepository,
     PostsQueryRepository,
+    PostsSqlQueryRepository,
+    PostsLikeSqlRepository,
+    BlogsUsersBanSqlRepository,
     JwtAccessStrategy,
     LikeCalculateService,
     JwtService,

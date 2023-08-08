@@ -22,6 +22,7 @@ import {BlogService} from "./blog.service";
 import {Posts, PostsSchema} from "../../public/posts/entity/posts.schema";
 import {JwtAccessStrategy} from "../../public/auth/strategies/jwt-access.strategy";
 import {UsersModule} from "../../users/users.module";
+import {BlogsSqlRepository} from "../../public/blogs/repository/blogsSql.repository";
 
 const CommandHandlers = [
     CreateBlogCommandHandler,
@@ -50,6 +51,7 @@ const CommandHandlers = [
         BlogService,
         BlogsRepository,
         BlogsQueryRepository,
+        BlogsSqlRepository,
         BloggerBlogsRepository,
         CommentsQueryRepository,
         PaginationService,

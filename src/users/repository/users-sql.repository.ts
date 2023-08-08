@@ -8,7 +8,7 @@ import {
     PasswordConfirmUserModel,
     PasswordHash
 } from "../../types/users";
-import {DeleteResponse, UpdateResponse} from "../../types/sql/types";
+import {DataResponse as Response, DeleteResponse, UpdateResponse} from "../../types/sql/types";
 import {dateNullable} from "../../utils";
 
 type PayloadType = {
@@ -59,9 +59,9 @@ export class UsersSqlRepository {
         const [data]: UsersSqlType[] = await this.dataSource.query(query,[code])
         return data
     }
-    async findById(id: string): Promise<UsersSqlType> {
+    async findById(id: string): Promise<UsersSqlType | null> {
         const query = `select u.* from "Users" u where u.id = $1;`;
-        const [data]: UsersSqlType[] = await this.dataSource.query(query,[id])
+        const [data]: Response<UsersSqlType> = await this.dataSource.query(query,[id])
         return data
     }
     async updatePassword(payload: PasswordHash, code: string): Promise<boolean> {

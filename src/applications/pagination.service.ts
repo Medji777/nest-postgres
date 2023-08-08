@@ -3,6 +3,7 @@ import {HydratedDocument, Model, PipelineStage, QueryWithHelpers} from 'mongoose
 import {getSortNumber} from '../utils/sort';
 import {transformPagination} from "../utils/transform";
 import {SortDirections} from "../types/types";
+import {PaginationDto} from "../utils/dto/pagination.dto";
 
 type Pagination<D> = {
   doc: D | any;
@@ -86,6 +87,13 @@ export class PaginationService {
         pagination.pageNumber,
         pagination.count,
     )
+  }
+  public paginationOptions(queryDto: PaginationDto): string {
+    return `
+             ORDER BY "${queryDto.sortBy}" ${queryDto.sortDirection}
+             LIMIT ${queryDto.pageSize}
+             offset ${(queryDto.pageNumber - 1) * queryDto.pageSize}
+        `
   }
   private createModel(query: Query, model, projection, filter): QueryWithHelpers<any, any> {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;

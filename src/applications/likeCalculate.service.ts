@@ -4,11 +4,11 @@ import { LikeStatus } from '../types/types';
 
 @Injectable()
 export class LikeCalculateService {
-  async getUpdatedLike(
+  getUpdatedLike(
     likesInfo: LikeInfoModel,
     lastStatus: LikeStatus,
     newStatus: LikeStatus,
-  ): Promise<LikeInfoModel> {
+  ): LikeInfoModel {
     if (newStatus === LikeStatus.None && lastStatus === LikeStatus.Like) {
       return { ...likesInfo, likesCount: --likesInfo.likesCount };
     }

@@ -16,11 +16,7 @@ export class UsersSqlQueryRepository {
     async getAll(queryDTO: QueryUsersDto): Promise<Paginator<UserViewModelSA>> {
         const {searchLoginTerm, searchEmailTerm, banStatus, ...restQuery} = queryDTO;
         const banFilter = this.getBanStatus(banStatus);
-        const paginateOptions = `
-                ORDER BY "${restQuery.sortBy}" ${restQuery.sortDirection}
-                LIMIT ${restQuery.pageSize}
-                offset ${(restQuery.pageNumber - 1) * restQuery.pageSize}
-        `;
+        const paginateOptions = this.paginationService.paginationOptions(restQuery);
         const filterOptions = `
                 ${banFilter}
                 (login ILIKE $1 or email ILIKE $2)

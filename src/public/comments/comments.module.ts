@@ -14,6 +14,8 @@ import { UsersModule } from '../../users/users.module';
 import { PaginationService } from '../../applications/pagination.service';
 import { JwtService } from '../../applications/jwt.service';
 import { settings } from "../../config";
+import {CommentsSqlRepository} from "./repository/commentsSql.repository";
+import {CommentsSqlQueryRepository} from "./repository/commentsSql.query-repository";
 
 @Module({
   imports: [
@@ -31,7 +33,9 @@ import { settings } from "../../config";
   providers: [
     CommentsService,
     CommentsRepository,
+    CommentsSqlRepository,
     CommentsQueryRepository,
+    CommentsSqlQueryRepository,
     JwtAccessStrategy,
     LikeCalculateService,
     PaginationService,
