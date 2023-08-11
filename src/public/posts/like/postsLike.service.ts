@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { PostsLikeRepository } from './repository/postsLike.repository';
+import {PostsLikeSqlRepository} from "./repository/postsLikeSql.repository";
 
 @Injectable()
 export class PostsLikeService {
-  constructor(private postsLikeRepository: PostsLikeRepository) {}
+  constructor(private postsLikeSqlRepository: PostsLikeSqlRepository) {}
   async deleteAll(): Promise<void> {
-    await this.postsLikeRepository.deleteAll();
+    await this.postsLikeSqlRepository.deleteAll();
   }
 }

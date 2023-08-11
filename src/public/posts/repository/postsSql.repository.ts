@@ -2,8 +2,9 @@ import {InjectDataSource} from "@nestjs/typeorm";
 import {DataSource} from "typeorm";
 import {Injectable} from "@nestjs/common";
 import {PostsSqlType} from "../../../types/sql/posts.sql";
-import {DataResponse, UpdateResponse} from "../../../types/sql/types";
+import {DataResponse, DeleteResponse, UpdateResponse} from "../../../types/sql/types";
 import {LikeInfoModel} from "../../../types/likes";
+import {PostInputModel} from "../../../types/posts";
 
 @Injectable()
 export class PostsSqlRepository {
@@ -29,6 +30,26 @@ export class PostsSqlRepository {
         const [data]: DataResponse<PostsSqlType> =
             await this.dataSource.query(`select * from "Posts" as p where p.id=$1;`,[id]);
         return data
+    }
+
+    async findByIdAndBlogId(id: string, blogId: string): Promise<PostsSqlType> {
+        const [data]: DataResponse<PostsSqlType> = await this.dataSource.query(
+            `select * from "Posts" as p where p.id=$1 and p."blogId"=$2`
+            ,[id, blogId]
+        )
+        return data
+    }
+
+    async update(postId: string, payload: PostInputModel): Promise<boolean> {
+        const res: UpdateResponse<PostsSqlType> = await this.dataSource.query(
+            `update "Posts" as p 
+                   set p.title=$1, 
+                   p."shortDescription"=$2,
+                   p.content=$3
+                   p."blogId"=$4 where p.id=$5`,
+            [payload.title,payload.shortDescription,payload.content,payload.blogId,postId]
+        );
+        return !!res[1]
     }
 
     async updateCountLikes(userId: string): Promise<boolean> {
@@ -78,12 +99,25 @@ export class PostsSqlRepository {
             update "Posts" as p 
             set "likesCount"= like_agg."likesCount", 
             "dislikesCount"= like_agg."dislikesCount"
-            from "Users" as u, "Blogs" as b, like_agg 
-            where p.id = $2 
+            from "PostsLike" as pl, "Users" as u, "Blogs" as b, like_agg 
+            where pl."userId" = $1 
+            and p.id = $2 
+            and p.id = pl."postId"
             and p."blogId" = b.id
             and u."isBanned"=false
             and b."isBanned"=false  
         `,[userId,postId])
         return !!res[1]
+    }
+
+    async deleteOne(id: string): Promise<boolean> {
+        const res: DeleteResponse<PostsSqlType> = await this.dataSource.query(`
+            delete from "Posts" as p where p.id = $1
+        `,[id])
+        return !!res[1]
+    }
+
+    async deleteAll(): Promise<void> {
+        await this.dataSource.query(`TRUNCATE "Posts" CASCADE`);
     }
 }

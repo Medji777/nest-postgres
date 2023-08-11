@@ -6,6 +6,7 @@ import {UpdateStatusLikeCommand} from "../command";
 import {PostsSqlRepository} from "../../repository/postsSql.repository";
 import {PostsLikeSqlRepository} from "../../like/repository/postsLikeSql.repository";
 import {BlogsUsersBanSqlRepository} from "../../../../bloggers/users/repository/blogsUsersBanSql.repository";
+import {LikeStatus} from "../../../../types/types";
 
 @CommandHandler(UpdateStatusLikeCommand)
 export class UpdateStatusLikeCommandHandler implements ICommandHandler<UpdateStatusLikeCommand> {
@@ -25,22 +26,12 @@ export class UpdateStatusLikeCommandHandler implements ICommandHandler<UpdateSta
         const isBanned = await this.blogsUsersBanRepository.checkBanStatusForBlog(userId,post.blogId);
         if(isBanned) throw new ForbiddenException()
 
-        const likeInfo = await this.postsLikeSqlRepository.findByUserIdAndPostId(userId,postId)
+        await Promise.all([
+            this.updateStatus(userId,postId,newStatus.likeStatus),
+            this.updateCountLikes(userId,postId)
+        ])
 
-        if (!likeInfo) {
-            await this.postsLikeSqlRepository.create(
-                userId,
-                postId,
-                newStatus.likeStatus,
-            )
-        } else {
-            //lastStatus = likeInfo.myStatus;
-            await this.postsLikeSqlRepository.updateStatus(
-                userId,
-                postId,
-                newStatus.likeStatus
-            )
-        }
+        //await this.updateStatus(userId,postId,newStatus.likeStatus)
 
         // const newLikesInfo = this.likeCalculateService.getUpdatedLike(
         //     {
@@ -52,6 +43,28 @@ export class UpdateStatusLikeCommandHandler implements ICommandHandler<UpdateSta
         // );
         // await this.postsSqlRepository.updateCountLikesInPost(post.id,newLikesInfo)
 
-        await this.postsSqlRepository.updateCountLikesInPost1(post.id,userId)
+        //await this.postsSqlRepository.updateCountLikesInPost1(post.id,userId)
+    }
+
+    private async updateStatus(userId: string, postId: string, likeStatus: LikeStatus): Promise<void> {
+        const likeInfo = await this.postsLikeSqlRepository.findByUserIdAndPostId(userId,postId)
+
+        if (!likeInfo) {
+            await this.postsLikeSqlRepository.create(
+                userId,
+                postId,
+                likeStatus,
+            )
+        } else {
+            //lastStatus = likeInfo.myStatus;
+            await this.postsLikeSqlRepository.updateStatus(
+                userId,
+                postId,
+                likeStatus
+            )
+        }
+    }
+    private async updateCountLikes(userId: string, postId: string): Promise<void> {
+        await this.postsSqlRepository.updateCountLikesInPost1(postId,userId)
     }
 }

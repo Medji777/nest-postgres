@@ -2,14 +2,12 @@ import {InjectDataSource} from "@nestjs/typeorm";
 import {DataSource} from "typeorm";
 import {Injectable} from "@nestjs/common";
 import {BlogsSqlType} from "../../../types/sql/blogs.sql";
-import {DataResponse, DeleteResponse} from "../../../types/sql/types";
+import {DataResponse, DeleteResponse, UpdateResponse} from "../../../types/sql/types";
+import {BlogsInputModelDTO} from "../dto";
 
 @Injectable()
 export class BlogsSqlRepository {
-    constructor(
-        @InjectDataSource() private dataSource: DataSource
-    ) {}
-
+    constructor(@InjectDataSource() private dataSource: DataSource) {}
     async create(name: string, description: string, websiteUrl: string, userId: string ): Promise<BlogsSqlType> {
         const query = `
             insert into "Blogs" (
@@ -37,5 +35,16 @@ export class BlogsSqlRepository {
         const query = 'select count(*) from "Blogs" where "usersId"=$1'
         const [data] = await this.dataSource.query(query,[userId])
         return !!data.count
+    }
+    async update(blogId: string, payload: BlogsInputModelDTO) {
+        const res: UpdateResponse<BlogsSqlType> = await this.dataSource.query(
+            `update "Blogs" as b 
+                   set b.name = $1, 
+                   b.description = $2, 
+                   b."websiteUrl" = $3
+                   where b."blogId" = $4;`,
+            [payload.name, payload.description, payload.websiteUrl, blogId]
+        )
+        return !!res[1]
     }
 }

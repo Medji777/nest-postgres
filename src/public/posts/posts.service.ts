@@ -1,35 +1,33 @@
 import { Injectable } from '@nestjs/common';
-import { PostsRepository } from './repository/posts.repository';
 import {
   BlogName,
   PostInputModel,
   PostsDBModel,
   PostsViewModel,
 } from '../../types/posts';
-import { PostsDocument } from './entity/posts.schema';
 import { LikeStatus } from '../../types/types';
 import { PostsLikeService } from './like/postsLike.service';
+import {PostsSqlRepository} from "./repository/postsSql.repository";
+import {PostsSqlType} from "../../types/sql/posts.sql";
 
 @Injectable()
 export class PostsService {
   constructor(
-    private readonly postsRepository: PostsRepository,
+    private readonly postsSqlRepository: PostsSqlRepository,
     private readonly postsLikeService: PostsLikeService,
   ) {}
   async create(payload: PostInputModel & BlogName & {userId: string}): Promise<PostsViewModel> {
-    const createPost = this.postsRepository.create(
+    const createPost = await this.postsSqlRepository.create(
         payload.title,
         payload.shortDescription,
         payload.content,
         payload.blogId,
-        payload.blogName,
         payload.userId
-    );
-    await this.postsRepository.save(createPost);
-    return this._likeCreateTransform(this._mappedPostModel(createPost));
+    )
+    return this._likeCreateTransform(this._mappedPostModel({...createPost, blogName: payload.blogName}));
   }
   async deleteAll(): Promise<void> {
-    await this.postsRepository.deleteAll();
+    await this.postsSqlRepository.deleteAll();
   }
   async deleteAllLikes(): Promise<void> {
     await this.postsLikeService.deleteAll();
@@ -45,7 +43,7 @@ export class PostsService {
       },
     };
   }
-  private _mappedPostModel(model: PostsDocument): PostsDBModel {
+  private _mappedPostModel(model: PostsSqlType & BlogName): PostsDBModel {
     return {
       id: model.id,
       title: model.title,
@@ -53,8 +51,11 @@ export class PostsService {
       content: model.content,
       blogId: model.blogId,
       blogName: model.blogName,
-      createdAt: model.createdAt,
-      extendedLikesInfo: model.extendedLikesInfo,
+      createdAt: model.createdAt.toISOString(),
+      extendedLikesInfo: {
+        likesCount: +model.likesCount,
+        dislikesCount: +model.dislikesCount
+      }
     };
   }
 }

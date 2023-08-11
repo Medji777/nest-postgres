@@ -24,8 +24,8 @@ import {BlogPostInputModelDto, BlogsInputModelDTO, QueryBlogsDTO} from "../../pu
 import {User} from "../../utils/decorators";
 import {Users} from "../../users/entity/users.schema";
 import {JwtAccessGuard} from "../../public/auth/guards/jwt-access.guard";
-import {BlogsQueryRepository as BloggerQueryRepository} from "./repository/blogs.query-repository";
-import {CommentsQueryRepository as BloggerCommentsQueryRepository} from './repository/comments.query-repository';
+import {BlogsSqlQueryRepository as BloggerQueryRepository} from "../../public/blogs/repository/blogsSql.query-repository";
+import {CommentsSqlQueryRepository as BloggerCommentsQueryRepository} from "./repository/commentsSql.query-repository";
 import {UpdatePostDto} from "./dto";
 import {PaginationDto} from "../../utils/dto/pagination.dto";
 
@@ -33,8 +33,8 @@ import {PaginationDto} from "../../utils/dto/pagination.dto";
 export class BlogsController {
     constructor(
         private commandBus: CommandBus,
-        private bloggerQueryRepository: BloggerQueryRepository,
-        private bloggerCommentsQueryRepository: BloggerCommentsQueryRepository
+        private bloggerSqlQueryRepository: BloggerQueryRepository,
+        private bloggerCommentsSqlQueryRepository: BloggerCommentsQueryRepository
     ) {}
 
     @UseGuards(JwtAccessGuard)
@@ -44,7 +44,8 @@ export class BlogsController {
         @Query() queryDTO: PaginationDto,
         @User() user: Users
     ) {
-        return this.bloggerCommentsQueryRepository.getAllCommentsWithPostByBlog(queryDTO, user.id)
+        return this.bloggerCommentsSqlQueryRepository
+            .getAllCommentsWithPostByBlog(queryDTO, user.id)
     }
 
     @UseGuards(JwtAccessGuard)
@@ -54,7 +55,7 @@ export class BlogsController {
         @Query() queryDTO: QueryBlogsDTO,
         @User() user: Users
     ) {
-        return this.bloggerQueryRepository.getAllBlogByIdAndUserId(queryDTO, user.id)
+        return this.bloggerSqlQueryRepository.getAll(queryDTO, user.id)
     }
 
     @UseGuards(JwtAccessGuard)
@@ -101,7 +102,9 @@ export class BlogsController {
         @Body() bodyDTO: BlogsInputModelDTO,
         @User() user: Users
     ) {
-       await this.commandBus.execute(new UpdateBlogCommand(id, user.id, bodyDTO))
+       await this.commandBus.execute(
+           new UpdateBlogCommand(id, user.id, bodyDTO)
+       )
     }
 
     @UseGuards(JwtAccessGuard)
@@ -125,7 +128,9 @@ export class BlogsController {
         @Param('id', ParseUUIDPipe) id: string,
         @User() user: Users
     ) {
-        await this.commandBus.execute(new DeleteBlogCommand(id, user.id))
+        await this.commandBus.execute(
+            new DeleteBlogCommand(id, user.id)
+        )
     }
 
     @UseGuards(JwtAccessGuard)

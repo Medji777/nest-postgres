@@ -15,11 +15,15 @@ export class BlogsSqlQueryRepository {
         private readonly paginationService: PaginationService,
     ) {}
 
-    async getAll(queryDTO: QueryBlogsDTO): Promise<Paginator<BlogsViewModel>> {
+    async getAll(queryDTO: QueryBlogsDTO, userId?: string): Promise<Paginator<BlogsViewModel>> {
         const { searchNameTerm, ...restQuery } = queryDTO;
 
         const paginateOptions = this.paginationService.paginationOptions(restQuery);
-        const filterOptions = `name ILIKE $1`;
+        let filterOptions = `name ILIKE $1`;
+
+        if(userId) {
+            filterOptions = filterOptions + ` and "userId"=${userId}`;
+        }
 
         const query = `select * from "Blogs" where ${filterOptions} ${paginateOptions}`;
         const queryCount = `select count(*) from "Blogs" where ${filterOptions}`;
@@ -37,8 +41,9 @@ export class BlogsSqlQueryRepository {
 
     async findById(id: string): Promise<BlogsViewModel> {
         const query = `
-            select * from "Blogs" b where id=$1 and 
-            (select * from "Users" u where u.id=b."userId" and u."isBanned"=false or b."isBanned"=false)
+            select * from "Blogs" b 
+            inner join "Users" as u on u.id=b."userId"
+            where id=$1 and u."isBanned"=false or b."isBanned"=false
         `;
         const [data] = await this.dataSource.query(query,[id])
         if (!data) {

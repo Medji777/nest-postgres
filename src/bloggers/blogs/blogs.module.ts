@@ -23,6 +23,9 @@ import {Posts, PostsSchema} from "../../public/posts/entity/posts.schema";
 import {JwtAccessStrategy} from "../../public/auth/strategies/jwt-access.strategy";
 import {UsersModule} from "../../users/users.module";
 import {BlogsSqlRepository} from "../../public/blogs/repository/blogsSql.repository";
+import {PostsSqlRepository} from "../../public/posts/repository/postsSql.repository";
+import {BlogsSqlQueryRepository} from "../../public/blogs/repository/blogsSql.query-repository";
+import {CommentsSqlQueryRepository} from "./repository/commentsSql.query-repository";
 
 const CommandHandlers = [
     CreateBlogCommandHandler,
@@ -52,8 +55,11 @@ const CommandHandlers = [
         BlogsRepository,
         BlogsQueryRepository,
         BlogsSqlRepository,
+        BlogsSqlQueryRepository,
         BloggerBlogsRepository,
         CommentsQueryRepository,
+        CommentsSqlQueryRepository,
+        PostsSqlRepository,
         PaginationService,
     ]
 })

@@ -63,7 +63,7 @@ export class CommentsSqlQueryRepository {
             select count(*) from "Comments" as c 
             left join "Users" as u on c."userId" = u.id
             where c."postId" = $1 and u."isBanned"=false
-        `
+        `;
         const dataArray: ArrayDataResponse<CommentSqlModel> = await this.dateSource.query(query,[id]);
         const [data]: ResponseDataCount = await this.dateSource.query(queryCount);
         return this.paginationService.transformPagination({

@@ -40,6 +40,9 @@ export class AppController {
     await this.dataSource.query(`TRUNCATE "UsersBlogsBan" CASCADE`);
     await this.dataSource.query(`TRUNCATE "Security" CASCADE`);
     await this.dataSource.query(`TRUNCATE "Posts" CASCADE`);
+    await this.dataSource.query(`TRUNCATE "PostsLike" CASCADE`);
     await this.dataSource.query(`TRUNCATE "Blogs" CASCADE`);
+    await this.dataSource.query(`TRUNCATE "Comments" CASCADE`);
+    await this.dataSource.query(`TRUNCATE "CommentsLike" CASCADE`);
   }
 }

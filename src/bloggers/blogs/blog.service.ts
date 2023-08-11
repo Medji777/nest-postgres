@@ -1,18 +1,14 @@
 import {ForbiddenException, Injectable, NotFoundException} from "@nestjs/common";
-import {BlogsRepository} from "../../public/blogs/repository/blogs.repository";
-import {BlogDocument} from "../../public/blogs/entity/blogs.schema";
+import {BlogsSqlRepository} from "../../public/blogs/repository/blogsSql.repository";
+import {BlogsSqlType} from "../../types/sql/blogs.sql";
 
 @Injectable()
 export class BlogService {
-    constructor(private blogsRepository: BlogsRepository) {}
-    async checkExistAndGet(id: string, userId: string): Promise<BlogDocument> {
-        const blog = await this.blogsRepository.findById(id)
-        if(!blog){
-            throw new NotFoundException('blog not found')
-        }
-        if(!blog.checkIncludeUser(userId)) {
-            throw new ForbiddenException()
-        }
+    constructor(private blogsSqlRepository: BlogsSqlRepository) {}
+    async checkExistAndGet(id: string, userId: string): Promise<BlogsSqlType> {
+        const blog = await this.blogsSqlRepository.findById(id)
+        if(!blog) throw new NotFoundException('blog not found');
+        if(blog.userId !== userId) throw new ForbiddenException();
         return blog
     }
 }

@@ -11,7 +11,7 @@ export class CreateBlogCommandHandler implements ICommandHandler<CreateBlogComma
         private readonly blogsRepository: BlogsRepository,
         private readonly blogsSqlRepository: BlogsSqlRepository
     ) {}
-    async execute(command: CreateBlogCommand): Promise<any> {
+    async execute(command: CreateBlogCommand): Promise<BlogsViewModel> {
         const {blogDto, user} = command;
         const createdBlog = await this.blogsSqlRepository.create(
             blogDto.name,
