@@ -19,6 +19,8 @@ import {BasicGuard} from "../../public/auth/guards/basic.guard";
 import {QueryUsersDto, UserInputModelDto} from "../../users/dto";
 import {BanInputDto} from "./dto";
 import {UsersSqlQueryRepository} from "../../users/repository/users-sql.query-repository";
+import {Paginator} from "../../types/types";
+import {UserViewModelSA} from "../../types/users";
 
 @Controller('sa/users')
 export class SAUsersController {
@@ -31,14 +33,14 @@ export class SAUsersController {
     @UseGuards(BasicGuard)
     @Get()
     @HttpCode(HttpStatus.OK)
-    async getAllUsers(@Query() queryDTO: QueryUsersDto ) {
+    async getAllUsers(@Query() queryDTO: QueryUsersDto): Promise<Paginator<UserViewModelSA>> {
         return this.usersSqlQueryRepository.getAll(queryDTO)
     }
 
     @UseGuards(BasicGuard)
     @Post()
     @HttpCode(HttpStatus.CREATED)
-    async createUser(@Body() bodyDTO: UserInputModelDto) {
+    async createUser(@Body() bodyDTO: UserInputModelDto): Promise<UserViewModelSA> {
         const model = await this.commandBus.execute(
             new CreateUserCommand(bodyDTO)
         )
@@ -51,14 +53,18 @@ export class SAUsersController {
     async banUnbanFlow(
         @Param('id', ParseUUIDPipe) id: string,
         @Body() bodyDTO: BanInputDto
-    ) {
-       await this.commandBus.execute(new BanUserCommand(id, bodyDTO))
+    ): Promise<void> {
+       await this.commandBus.execute(
+           new BanUserCommand(id, bodyDTO)
+       )
     }
 
     @UseGuards(BasicGuard)
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
-    async deleteUser(@Param('id', ParseUUIDPipe) id: string) {
-        await this.commandBus.execute(new DeleteUserCommand(id))
+    async deleteUser(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+        await this.commandBus.execute(
+            new DeleteUserCommand(id)
+        )
     }
 }

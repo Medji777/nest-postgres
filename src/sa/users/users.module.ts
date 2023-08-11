@@ -35,7 +35,6 @@ import {CommentsSqlRepository} from "../../public/comments/repository/commentsSq
 const CommandHandlers = [
     CreateUserCommandHandler,
     DeleteUserCommandHandler,
-    //BanUserCommandHandler,
     BanUserSqlCommandHandler
 ]
 const Repository = [

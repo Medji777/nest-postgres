@@ -1,8 +1,6 @@
 import {CommandHandler, ICommandHandler} from "@nestjs/cqrs";
 import {CreateUserCommand} from "../command";
 import {PassHashService} from "../../../../applications/passHash.service";
-//import {UsersRepository} from "../../../../users/repository/users.repository";
-//import {UsersDocument} from "../../../../users/entity/users.schema";
 import {UsersSqlRepository} from "../../../../users/repository/users-sql.repository";
 import {UsersSqlType} from "../../../../types/sql/user.sql";
 
@@ -10,7 +8,6 @@ import {UsersSqlType} from "../../../../types/sql/user.sql";
 export class CreateUserCommandHandler implements ICommandHandler<CreateUserCommand> {
     constructor(
         private readonly passHashService: PassHashService,
-        //private readonly usersRepository: UsersRepository,
         private readonly usersSqlRepository: UsersSqlRepository
     ) {}
     async execute(command: CreateUserCommand): Promise<UsersSqlType> {
@@ -22,13 +19,5 @@ export class CreateUserCommandHandler implements ICommandHandler<CreateUserComma
             passwordHash,
             command.dto
         )
-        // const doc = this.usersRepository.create(
-        //     bodyDTO.login,
-        //     bodyDTO.email,
-        //     passwordHash,
-        //     command.dto,
-        // );
-        // await this.usersRepository.save(doc);
-        //return doc;
     }
 }

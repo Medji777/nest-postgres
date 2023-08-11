@@ -31,7 +31,7 @@ export class BlogsSqlRepository {
         const res: DeleteResponse<BlogsSqlType> = await this.dataSource.query(query,[id]);
         return !!res[1]
     }
-    async checkIncludeUser(userId: string): Promise<boolean>{
+    async checkIncludeUser(userId: string): Promise<boolean> {
         const query = 'select count(*) from "Blogs" where "usersId"=$1'
         const [data] = await this.dataSource.query(query,[userId])
         return !!data.count
@@ -44,6 +44,21 @@ export class BlogsSqlRepository {
                    b."websiteUrl" = $3
                    where b."blogId" = $4;`,
             [payload.name, payload.description, payload.websiteUrl, blogId]
+        )
+        return !!res[1]
+    }
+    async updateBindUser(blogId: string, userId: string): Promise<boolean> {
+        const res: UpdateResponse<BlogsSqlType> = await this.dataSource.query(
+            `update "Blogs" set "userId"=$1 where id=$2`,
+            [userId,blogId]
+        )
+        return !!res[1]
+    }
+    async updateBan(blogId: string, isBanned: boolean): Promise<boolean> {
+        const banDate = !isBanned ? 'Null' : 'now()'
+        const res: UpdateResponse<BlogsSqlType> = await this.dataSource.query(
+            `update "Blogs" as b set "banDate"=${banDate}, "isBanned" = $2 where id = $1`,
+            [blogId,isBanned]
         )
         return !!res[1]
     }
