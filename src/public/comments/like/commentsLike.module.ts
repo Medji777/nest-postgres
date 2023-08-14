@@ -2,8 +2,9 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CommentsLike, CommentsLikeSchema } from './entity/commentsLike.schema';
 import { CommentsLikeService } from './commentsLike.service';
-import { CommentsLikeRepository } from './repository/commentsLike.repository';
+// import { CommentsLikeRepository } from './repository/commentsLike.repository';
 import { CommentsLikeQueryRepository } from './repository/commentsLike.query-repository';
+import {CommentsLikeSqlRepository} from "./repository/commentsLikeSql.repository";
 
 @Module({
   imports: [
@@ -13,7 +14,8 @@ import { CommentsLikeQueryRepository } from './repository/commentsLike.query-rep
   ],
   providers: [
     CommentsLikeService,
-    CommentsLikeRepository,
+    //CommentsLikeRepository,
+    CommentsLikeSqlRepository,
     CommentsLikeQueryRepository,
   ],
   exports: [CommentsLikeService, CommentsLikeQueryRepository],

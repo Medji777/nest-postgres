@@ -1,11 +1,11 @@
-import {Users} from "../../../../users/entity/users.schema";
 import {BanUnbanInputDto} from "../../dto";
+import {UsersSqlType} from "../../../../types/sql/user.sql";
 
 export class BanUserCommand {
     public bloggerId: string
     constructor(
         public userId: string,
-        private user: Users,
+        private user: UsersSqlType,
         public bodyDTO: BanUnbanInputDto
     ) {
         this.bloggerId = user.id

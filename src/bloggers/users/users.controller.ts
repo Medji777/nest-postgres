@@ -3,9 +3,9 @@ import {CommandBus} from "@nestjs/cqrs";
 import {BanUnbanInputDto, QueryUsersDto} from "./dto";
 import {JwtAccessGuard} from "../../public/auth/guards/jwt-access.guard";
 import {User} from "../../utils/decorators";
-import {Users} from "../../users/entity/users.schema";
 import {BanUserCommand} from "./useCase/command";
 import {BlogsUsersBanSqlQueryRepository} from "./repository/blogsUsersBanSql.query-repository";
+import {UsersSqlType} from "../../types/sql/user.sql";
 
 @Controller('blogger/users')
 export class BloggerUsersController {
@@ -19,7 +19,7 @@ export class BloggerUsersController {
     async getAllBannedUsersForBlog(
         @Query() queryDTO: QueryUsersDto,
         @Param('id', ParseUUIDPipe) id: string,
-        @User() user: Users
+        @User() user: UsersSqlType
     ) {
         return this.blogsUsersBanSqlQueryRepository
             .getBannedUserByBlogId(id, user.id, queryDTO)
@@ -31,7 +31,7 @@ export class BloggerUsersController {
     async banUnbanFlow(
         @Param('id', ParseUUIDPipe) id: string,
         @Body() bodyDTO: BanUnbanInputDto,
-        @User() user: Users
+        @User() user: UsersSqlType
     ) {
         await this.commandBus.execute(
             new BanUserCommand(id, user, bodyDTO)

@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { isEqual } from 'date-fns';
-import { SecurityRepository } from './repository/security.repository';
 import { RefreshResponseType } from '../../types/security';
 import {SecuritySqlRepository} from "./repository/securitySql.repository";
 
@@ -13,7 +12,6 @@ import {SecuritySqlRepository} from "./repository/securitySql.repository";
 export class SecurityService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly securityRepository: SecurityRepository,
     private readonly securitySqlRepository: SecuritySqlRepository
   ) {}
   async checkRefreshTokenParsed(meta): Promise<RefreshResponseType | null> {
@@ -31,9 +29,6 @@ export class SecurityService {
       }
     }
     return null;
-  }
-  async deleteAll(): Promise<void> {
-    await this.securityRepository.deleteAll();
   }
 
   async createSessionSql(

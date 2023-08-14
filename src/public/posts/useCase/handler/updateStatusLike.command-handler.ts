@@ -32,7 +32,6 @@ export class UpdateStatusLikeCommandHandler implements ICommandHandler<UpdateSta
         ])
 
         //await this.updateStatus(userId,postId,newStatus.likeStatus)
-
         // const newLikesInfo = this.likeCalculateService.getUpdatedLike(
         //     {
         //         likesCount: post.likesCount,
@@ -42,7 +41,6 @@ export class UpdateStatusLikeCommandHandler implements ICommandHandler<UpdateSta
         //     newStatus.likeStatus,
         // );
         // await this.postsSqlRepository.updateCountLikesInPost(post.id,newLikesInfo)
-
         //await this.postsSqlRepository.updateCountLikesInPost1(post.id,userId)
     }
 

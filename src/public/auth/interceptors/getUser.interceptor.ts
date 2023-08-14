@@ -8,13 +8,13 @@ import { Observable } from 'rxjs';
 import { Request } from 'express';
 import { JwtService } from '../../../applications/jwt.service';
 import { settings } from '../../../config';
-import { UsersQueryRepository } from '../../../users/repository/users.query-repository';
+import { UsersSqlRepository } from "../../../users/repository/users-sql.repository";
 
 @Injectable()
 export class GetUserInterceptor implements NestInterceptor {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly usersQueryRepository: UsersQueryRepository,
+    private readonly usersSqlRepository: UsersSqlRepository,
   ) {}
   async intercept(
     context: ExecutionContext,
@@ -31,7 +31,7 @@ export class GetUserInterceptor implements NestInterceptor {
       settings.JWT_SECRET,
     );
     if (name === 'Bearer' && result?.userId) {
-      req.user = await this.usersQueryRepository.getUserByUserId(result.userId);
+      req.user = await this.usersSqlRepository.findById(result.userId);
       return next.handle();
     }
     return next.handle();

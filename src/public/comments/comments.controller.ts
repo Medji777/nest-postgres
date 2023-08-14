@@ -19,12 +19,15 @@ import { CommentInputModelDto, LikeInputModelDto } from './dto';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { GetUserInterceptor } from '../auth/interceptors/getUser.interceptor';
 import { CommentsSqlQueryRepository } from "./repository/commentsSql.query-repository";
+import { CommandBus } from "@nestjs/cqrs";
+import { DeleteCommentCommand, UpdateContentCommand, UpdateStatusLikeCommand } from "./useCase/command";
 
 @Controller('comments')
 export class CommentsController {
   constructor(
-    private readonly commentsService: CommentsService,
-    private readonly commentSqlQueryRepository: CommentsSqlQueryRepository
+      private readonly commandBus: CommandBus,
+      private readonly commentsService: CommentsService,
+      private readonly commentSqlQueryRepository: CommentsSqlQueryRepository
   ) {}
 
   @Get(':id')
@@ -46,7 +49,9 @@ export class CommentsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() bodyDTO: CommentInputModelDto,
   ) {
-    await this.commentsService.update(id, bodyDTO);
+    await this.commandBus.execute(
+        new UpdateContentCommand(id, bodyDTO)
+    )
   }
 
   @Put(':id/like-status')
@@ -58,6 +63,9 @@ export class CommentsController {
     @Body() bodyDTO: LikeInputModelDto,
     @Req() req: Request,
   ) {
+    await this.commandBus.execute(
+        new UpdateStatusLikeCommand(id, req.user?.id, bodyDTO)
+    )
     await this.commentsService.updateLike(id, req.user?.id, bodyDTO);
   }
 
@@ -67,6 +75,8 @@ export class CommentsController {
   @UseGuards(JwtAccessGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteComments(@Param('id', ParseUUIDPipe) id: string) {
-    await this.commentsService.delete(id);
+    await this.commandBus.execute(
+        new DeleteCommentCommand(id)
+    )
   }
 }

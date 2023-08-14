@@ -22,7 +22,7 @@ import {
 } from "./useCase/commands";
 import {BlogPostInputModelDto, BlogsInputModelDTO, QueryBlogsDTO} from "../../public/blogs/dto";
 import {User} from "../../utils/decorators";
-import {Users} from "../../users/entity/users.schema";
+import {UsersSqlType} from "../../types/sql/user.sql";
 import {JwtAccessGuard} from "../../public/auth/guards/jwt-access.guard";
 import {BlogsSqlQueryRepository as BloggerQueryRepository} from "../../public/blogs/repository/blogsSql.query-repository";
 import {CommentsSqlQueryRepository as BloggerCommentsQueryRepository} from "./repository/commentsSql.query-repository";
@@ -42,7 +42,7 @@ export class BlogsController {
     @HttpCode(HttpStatus.OK)
     async getAllCommentsWithPostByBlog(
         @Query() queryDTO: PaginationDto,
-        @User() user: Users
+        @User() user: UsersSqlType
     ) {
         return this.bloggerCommentsSqlQueryRepository
             .getAllCommentsWithPostByBlog(queryDTO, user.id)
@@ -53,7 +53,7 @@ export class BlogsController {
     @HttpCode(HttpStatus.OK)
     async getBlogs(
         @Query() queryDTO: QueryBlogsDTO,
-        @User() user: Users
+        @User() user: UsersSqlType
     ) {
         return this.bloggerSqlQueryRepository.getAll(queryDTO, user.id)
     }
@@ -64,7 +64,7 @@ export class BlogsController {
     async getPostsForBlog(
         @Param('blogId', ParseUUIDPipe) id: string,
         @Query() queryDTO: PaginationDto,
-        @User() user: Users
+        @User() user: UsersSqlType
     ) {
 
     }
@@ -74,7 +74,7 @@ export class BlogsController {
     @HttpCode(HttpStatus.CREATED)
     async createBlog(
         @Body() body: BlogsInputModelDTO,
-        @User() user: Users
+        @User() user: UsersSqlType
     ) {
         return this.commandBus.execute(
             new CreateBlogCommand(body, user)
@@ -87,7 +87,7 @@ export class BlogsController {
     async createNewPostByBlog(
         @Param('blogId', ParseUUIDPipe) id: string,
         @Body() bodyDTO: BlogPostInputModelDto,
-        @User() user: Users
+        @User() user: UsersSqlType
     ) {
         return this.commandBus.execute(
             new CreatePostForBlogCommand(id, user.id, bodyDTO)
@@ -100,7 +100,7 @@ export class BlogsController {
     async updateBlog(
         @Param('id', ParseUUIDPipe) id: string,
         @Body() bodyDTO: BlogsInputModelDTO,
-        @User() user: Users
+        @User() user: UsersSqlType
     ) {
        await this.commandBus.execute(
            new UpdateBlogCommand(id, user.id, bodyDTO)
@@ -113,7 +113,7 @@ export class BlogsController {
     async updatePostsByBlog(
         @Param('blogId', ParseUUIDPipe) blogId: string,
         @Param('postsId', ParseUUIDPipe) postsId: string,
-        @User() user: Users,
+        @User() user: UsersSqlType,
         @Body() bodyDTO: UpdatePostDto
     ) {
         await this.commandBus.execute(
@@ -126,7 +126,7 @@ export class BlogsController {
     @HttpCode(HttpStatus.NO_CONTENT)
     async deleteBlog(
         @Param('id', ParseUUIDPipe) id: string,
-        @User() user: Users
+        @User() user: UsersSqlType
     ) {
         await this.commandBus.execute(
             new DeleteBlogCommand(id, user.id)
@@ -139,7 +139,7 @@ export class BlogsController {
     async deletePostsByBlog(
         @Param('blogId', ParseUUIDPipe) blogId: string,
         @Param('postsId', ParseUUIDPipe) postsId: string,
-        @User() user: Users
+        @User() user: UsersSqlType
     ) {
         await this.commandBus.execute(
             new DeletePostByBlogCommand(blogId, postsId, user.id)

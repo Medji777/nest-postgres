@@ -1,7 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CommentsLikeRepository } from './repository/commentsLike.repository';
-import { LikeStatus } from '../../../types/types';
-import { CommentsLikeDocument } from './entity/commentsLike.schema';
+import {Injectable, NotFoundException} from '@nestjs/common';
+import {LikeStatus} from '../../../types/types';
+import {CommentsLikeSqlRepository} from "./repository/commentsLikeSql.repository";
+import {CommentsLikeSql} from "../../../types/sql/commentsLike.sql";
 
 type LikesInfo = {
   userId: string;
@@ -11,29 +11,23 @@ type LikesInfo = {
 @Injectable()
 export class CommentsLikeService {
   constructor(
-    private readonly commentsLikeRepository: CommentsLikeRepository,
+    private readonly commentsLikeSqlRepository: CommentsLikeSqlRepository
   ) {}
-  async create(userId: string, commentId: string, myStatus: LikeStatus): Promise<CommentsLikeDocument> {
-    const doc = this.commentsLikeRepository.create(
-      userId,
-      commentId,
-      myStatus
+  async create(userId: string, commentId: string, myStatus: LikeStatus): Promise<CommentsLikeSql> {
+    return this.commentsLikeSqlRepository.create(
+        userId,
+        commentId,
+        myStatus
     );
-    await this.commentsLikeRepository.save(doc);
-    return doc;
   }
   async update(likeInfo: LikesInfo, myStatus: LikeStatus): Promise<void> {
-    const like = await this.commentsLikeRepository.findByUserIdAndCommentId(
+    const like = await this.commentsLikeSqlRepository.findByUserIdAndCommentId(
       likeInfo.userId,
       likeInfo.commentId,
     );
     if (!like) {
       throw new NotFoundException();
     }
-    like.update(myStatus);
-    await this.commentsLikeRepository.save(like);
-  }
-  async deleteAll(): Promise<void> {
-    await this.commentsLikeRepository.deleteAll();
+    await this.commentsLikeSqlRepository.update(like.commentId, myStatus)
   }
 }

@@ -1,6 +1,5 @@
 import {CommandHandler, ICommandHandler} from "@nestjs/cqrs";
 import {CreateBlogCommand} from "../commands";
-import {BlogsRepository} from "../../../../public/blogs/repository/blogs.repository";
 import {BlogsViewModel} from "../../../../types/blogs";
 import {BlogsSqlRepository} from "../../../../public/blogs/repository/blogsSql.repository";
 import {BlogsSqlType} from "../../../../types/sql/blogs.sql";
@@ -8,7 +7,6 @@ import {BlogsSqlType} from "../../../../types/sql/blogs.sql";
 @CommandHandler(CreateBlogCommand)
 export class CreateBlogCommandHandler implements ICommandHandler<CreateBlogCommand> {
     constructor(
-        private readonly blogsRepository: BlogsRepository,
         private readonly blogsSqlRepository: BlogsSqlRepository
     ) {}
     async execute(command: CreateBlogCommand): Promise<BlogsViewModel> {

@@ -6,15 +6,13 @@ import {
   PostsViewModel,
 } from '../../types/posts';
 import { LikeStatus } from '../../types/types';
-import { PostsLikeService } from './like/postsLike.service';
-import {PostsSqlRepository} from "./repository/postsSql.repository";
-import {PostsSqlType} from "../../types/sql/posts.sql";
+import { PostsSqlRepository } from "./repository/postsSql.repository";
+import { PostsSqlType } from "../../types/sql/posts.sql";
 
 @Injectable()
 export class PostsService {
   constructor(
     private readonly postsSqlRepository: PostsSqlRepository,
-    private readonly postsLikeService: PostsLikeService,
   ) {}
   async create(payload: PostInputModel & BlogName & {userId: string}): Promise<PostsViewModel> {
     const createPost = await this.postsSqlRepository.create(
@@ -28,9 +26,6 @@ export class PostsService {
   }
   async deleteAll(): Promise<void> {
     await this.postsSqlRepository.deleteAll();
-  }
-  async deleteAllLikes(): Promise<void> {
-    await this.postsLikeService.deleteAll();
   }
   private _likeCreateTransform(post: PostsDBModel): PostsViewModel {
     return {

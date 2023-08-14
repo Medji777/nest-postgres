@@ -1,6 +1,6 @@
 import {BlogsInputModelDTO} from "../../../../public/blogs/dto";
-import {Users} from "../../../../users/entity/users.schema";
+import {UsersSqlType} from "../../../../types/sql/user.sql";
 
 export class CreateBlogCommand {
-    constructor(public blogDto: BlogsInputModelDTO, public user: Users) {}
+    constructor(public blogDto: BlogsInputModelDTO, public user: UsersSqlType) {}
 }

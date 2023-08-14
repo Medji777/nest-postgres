@@ -1,8 +1,9 @@
 import {Injectable} from "@nestjs/common";
 import {InjectDataSource} from "@nestjs/typeorm";
 import {DataSource} from "typeorm";
-import {DataResponse, UpdateResponse} from "../../../types/sql/types";
+import {DataResponse, DeleteResponse, UpdateResponse} from "../../../types/sql/types";
 import {CommentsSqlType} from "../../../types/sql/comments.sql";
+import {CommentInputModel} from "../../../types/comments";
 
 @Injectable()
 export class CommentsSqlRepository {
@@ -15,12 +16,30 @@ export class CommentsSqlRepository {
         bloggerId: string
     ): Promise<CommentsSqlType> {
         const query = `
-            insert into (id,content,"userId","createdAt","postId","bloggerId") values (
+            insert into "Comments" (id,content,"userId","createdAt","postId","bloggerId") values (
             uuid_generate_v4(),${content},${userId},now(),${postId},${bloggerId}
             ) returning *
         `;
         const [data]: DataResponse<CommentsSqlType> = await this.dataSource.query(query)
         return data
+    }
+
+    async findById(id: string): Promise<CommentsSqlType> {
+        const [data]: DataResponse<CommentsSqlType> = await this.dataSource.query(
+            `select * from "Comments" as c 
+                   inner join "Users" as u on u.id = c."userId"
+                   where u."isBanned"=false and c.id=$1`,
+            [id]
+        )
+        return data
+    }
+
+    async update(id: string, content: string): Promise<boolean> {
+        const res: UpdateResponse<CommentsSqlType> = await this.dataSource.query(
+            `update "Comments" set content=$1 where id=$2`,
+            [content,id]
+        )
+        return !!res[1]
     }
 
     async updateCountLikes(userId: string): Promise<boolean> {
@@ -41,6 +60,13 @@ export class CommentsSqlRepository {
             cl."userId" = $1 and u.id = $1 and c.id = cl."commentId" and u."isBanned"=false
         `;
         const res: UpdateResponse<CommentsSqlType> = await this.dataSource.query(query, [userId])
+        return !!res[1]
+    }
+
+    async delete(id: string): Promise<boolean> {
+        const res: DeleteResponse<CommentsSqlType> = await this.dataSource.query(
+            `delete from "Comments" where id=$1`,[id]
+        )
         return !!res[1]
     }
 }

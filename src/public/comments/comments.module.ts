@@ -16,12 +16,22 @@ import { JwtService } from '../../applications/jwt.service';
 import { settings } from "../../config";
 import {CommentsSqlRepository} from "./repository/commentsSql.repository";
 import {CommentsSqlQueryRepository} from "./repository/commentsSql.query-repository";
+import {CqrsModule} from "@nestjs/cqrs";
+import {
+  UpdateContentCommandHandler,
+  DeleteCommentCommandHandler,
+  UpdateStatusLikeCommandHandler
+} from "./useCase/handler";
+import {CommentsLikeSqlRepository} from "./like/repository/commentsLikeSql.repository";
+
+const CommandHandlers = [UpdateContentCommandHandler, DeleteCommentCommandHandler, UpdateStatusLikeCommandHandler]
 
 @Module({
   imports: [
+    CqrsModule,
     MongooseModule.forFeature([
-      { name: Comments.name, schema: CommentsSchema },
-      { name: Posts.name, schema: PostsSchema }
+      {name: Comments.name, schema: CommentsSchema},
+      {name: Posts.name, schema: PostsSchema}
     ]),
     JwtModule.register({
       secret: settings.JWT_SECRET
@@ -36,10 +46,12 @@ import {CommentsSqlQueryRepository} from "./repository/commentsSql.query-reposit
     CommentsSqlRepository,
     CommentsQueryRepository,
     CommentsSqlQueryRepository,
+    CommentsLikeSqlRepository,
     JwtAccessStrategy,
     LikeCalculateService,
     PaginationService,
     JwtService,
+    ...CommandHandlers
   ],
   exports: [CommentsService, CommentsQueryRepository],
 })

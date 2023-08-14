@@ -40,4 +40,14 @@ export class BlogsUsersBanSqlRepository {
         `,[userId,blogId])
         return !!data
     }
+
+    async checkBannedUserByPostId(postId: string, userId: string): Promise<boolean> {
+        const [data] = await this.dataSource.query(
+            `select * from "Posts" as p 
+             left join "Blogs" b on p."blogId"=b.id
+             left join "UsersBlogsBan" ubb on b.id=ubb."blogId"
+             where ubb."blogId"=b.id and ubb."userId"=${userId} and ;`
+        );
+        return !!data;
+    }
 }

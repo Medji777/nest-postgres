@@ -6,6 +6,7 @@ import {BanStatus, Paginator} from "../../types/types";
 import {PaginationService} from "../../applications/pagination.service";
 import {UsersSqlType} from "../../types/sql/user.sql";
 import {UserViewModelSA} from "../../types/users";
+import {DataResponse} from "../../types/sql/types";
 
 @Injectable()
 export class UsersSqlQueryRepository {
@@ -17,10 +18,7 @@ export class UsersSqlQueryRepository {
         const {searchLoginTerm, searchEmailTerm, banStatus, ...restQuery} = queryDTO;
         const banFilter = this.getBanStatus(banStatus);
         const paginateOptions = this.paginationService.paginationOptions(restQuery);
-        const filterOptions = `
-                ${banFilter}
-                (login ILIKE $1 or email ILIKE $2)
-        `;
+        const filterOptions = `${banFilter} (login ILIKE $1 or email ILIKE $2)`;
         const query = `select * from "Users" where ${filterOptions} ${paginateOptions};`;
         const queryCount = `select count(*) from "Users" where ${filterOptions};`;
 
@@ -35,23 +33,19 @@ export class UsersSqlQueryRepository {
         })
     }
     async getUserByLoginOrEmail(uniqueField: string): Promise<UsersSqlType> {
-        const query = `
-                    select u.* from "Users" u 
-                    where 
-                    u.login = '${uniqueField}' or 
-                    u.email = '${uniqueField}'
-                    `;
-        const [data]: UsersSqlType[] = await this.dataSource.query(query)
+        const query = `select u.* from "Users" u 
+                       where u.login = $1 or u.email = $1`;
+        const [data]: DataResponse<UsersSqlType> = await this.dataSource.query(query,[uniqueField])
         return data
     }
     async getIsUniqueUserByLogin(login: string): Promise<boolean> {
         const query = `select login from "Users" u where u.login = $1`;
-        const [data]: UsersSqlType[] = await this.dataSource.query(query, [login])
+        const [data]: DataResponse<UsersSqlType> = await this.dataSource.query(query, [login])
         return !data
     }
     async getIsUniqueUserByEmail(email: string): Promise<boolean> {
         const query = `select email from "Users" u where u.email = $1`;
-        const [data]: UsersSqlType[] = await this.dataSource.query(query, [email])
+        const [data]: DataResponse<UsersSqlType> = await this.dataSource.query(query, [email])
         return !data
     }
     private getOutputUserSqlMapped(user: UsersSqlType): UserViewModelSA {

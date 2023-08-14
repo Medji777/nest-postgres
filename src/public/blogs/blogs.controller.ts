@@ -7,21 +7,21 @@ import {
   HttpStatus,
   UseInterceptors, ParseUUIDPipe,
 } from '@nestjs/common';
-import { PostsQueryRepository } from '../posts/repository/posts.query-repository';
 import {
   QueryBlogsDTO,
   QueryPostsDto,
 } from './dto';
 import { GetUserInterceptor } from '../auth/interceptors/getUser.interceptor';
 import {User} from "../../utils/decorators";
-import {Users} from "../../users/entity/users.schema";
 import {BlogsSqlQueryRepository} from "./repository/blogsSql.query-repository";
+import {UsersSqlType} from "../../types/sql/user.sql";
+import {PostsSqlQueryRepository} from "../posts/repository/postsSql.query-repository";
 
 @Controller('blogs')
 export class BlogsController {
   constructor(
     private readonly blogsSqlQueryRepository: BlogsSqlQueryRepository,
-    private readonly postsQueryRepository: PostsQueryRepository,
+    private readonly postsSqlQueryRepository: PostsSqlQueryRepository
   ) {}
 
   @Get()
@@ -41,9 +41,9 @@ export class BlogsController {
   async getPostByBlogIdWithQuery(
     @Param('blogId', ParseUUIDPipe) id: string,
     @Query() query: QueryPostsDto,
-    @User() user: Users,
+    @User() user: UsersSqlType,
   ) {
     await this.blogsSqlQueryRepository.findById(id);
-    return this.postsQueryRepository.getPostsByBlogId(id, query, user?.id);
+    return this.postsSqlQueryRepository.getPostsByBlogId(id, query, user?.id);
   }
 }

@@ -12,7 +12,6 @@ import { CommandBus } from "@nestjs/cqrs";
 import { Request } from 'express';
 import { CheckSessionGuard } from './guards/checkSession.guard';
 import { JwtRefreshGuard } from '../auth/guards/jwt-refresh.guard';
-
 import {
   DeleteAllSessionsWithoutCurrentCommand,
   DeleteSessionByDeviceIdCommand,
@@ -28,7 +27,8 @@ export class SecurityController {
   @Get('devices')
   @UseGuards(JwtRefreshGuard)
   async getDevices(@Req() req: Request) {
-    return this.securitySqlQueryRepository.getAllActiveSessions(req.user.userId);
+    return this.securitySqlQueryRepository
+        .getAllActiveSessions(req.user.userId);
   }
   @Delete('devices')
   @UseGuards(JwtRefreshGuard)

@@ -5,7 +5,6 @@ import { Posts, PostsSchema } from './entity/posts.schema';
 import { PostsController } from './posts.controller';
 import { PostsService } from './posts.service';
 import { PostsRepository } from './repository/posts.repository';
-import { PostsQueryRepository } from './repository/posts.query-repository';
 import { CreateCommentByPostCommandHandler, UpdateStatusLikeCommandHandler } from "./useCase/handler";
 import { BlogsModule } from '../blogs/blogs.module';
 import { CommentsModule } from '../comments/comments.module';
@@ -16,10 +15,11 @@ import { UsersModule } from '../../users/users.module';
 import { JwtService } from '../../applications/jwt.service';
 import { PaginationService } from '../../applications/pagination.service';
 import { CheckBlogIdValidate } from "../../utils/validates";
-import {PostsSqlRepository} from "./repository/postsSql.repository";
-import {PostsLikeSqlRepository} from "./like/repository/postsLikeSql.repository";
-import {BlogsUsersBanSqlRepository} from "../../bloggers/users/repository/blogsUsersBanSql.repository";
-import {PostsSqlQueryRepository} from "./repository/postsSql.query-repository";
+import { PostsSqlRepository } from "./repository/postsSql.repository";
+import { BlogsUsersBanSqlRepository } from "../../bloggers/users/repository/blogsUsersBanSql.repository";
+import { PostsSqlQueryRepository } from "./repository/postsSql.query-repository";
+
+const commandHandlers = [UpdateStatusLikeCommandHandler, CreateCommentByPostCommandHandler];
 
 @Module({
   imports: [
@@ -35,18 +35,15 @@ import {PostsSqlQueryRepository} from "./repository/postsSql.query-repository";
     PostsService,
     PostsRepository,
     PostsSqlRepository,
-    PostsQueryRepository,
     PostsSqlQueryRepository,
-    PostsLikeSqlRepository,
     BlogsUsersBanSqlRepository,
     JwtAccessStrategy,
     LikeCalculateService,
     JwtService,
     PaginationService,
     CheckBlogIdValidate,
-    UpdateStatusLikeCommandHandler,
-    CreateCommentByPostCommandHandler
+    ...commandHandlers
   ],
-  exports: [PostsService, PostsRepository, PostsQueryRepository],
+  exports: [PostsService, PostsRepository, PostsSqlQueryRepository],
 })
 export class PostsModule {}

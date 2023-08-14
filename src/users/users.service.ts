@@ -1,16 +1,8 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { UsersRepository } from './repository/users.repository';
+import { Injectable } from '@nestjs/common';
 import { PassHashService } from '../applications/passHash.service';
-import {
-  UserViewModel,
-} from '../types/users';
-import { UserInputModelDto } from './dto';
 import { ErrorResponse } from '../types/types';
-import {UsersSqlType} from "../types/sql/user.sql";
-import {UsersSqlRepository} from "./repository/users-sql.repository";
+import { UsersSqlType } from "../types/sql/user.sql";
+import { UsersSqlRepository } from "./repository/users-sql.repository";
 
 type Cred = {
   check: boolean;
@@ -20,39 +12,9 @@ type Cred = {
 @Injectable()
 export class UsersService {
   constructor(
-    private readonly usersRepository: UsersRepository,
     private readonly usersSqlRepository: UsersSqlRepository,
     private readonly passHashService: PassHashService,
   ) {}
-  async create(payload: UserInputModelDto, dto?) {
-    const passwordHash = await this.passHashService.create(payload.password);
-    const doc = this.usersRepository.create(
-      payload.login,
-      payload.email,
-      passwordHash,
-      dto,
-    );
-    await this.usersRepository.save(doc);
-    return doc;
-  }
-  async createUser(payload: UserInputModelDto): Promise<UserViewModel> {
-    const doc = await this.create(payload);
-    return {
-      id: doc.id,
-      login: doc.login,
-      email: doc.email,
-      createdAt: doc.createdAt,
-    };
-  }
-  async deleteUser(id: string): Promise<void> {
-    const isDeleted = await this.usersRepository.deleteById(id);
-    if (!isDeleted) {
-      throw new NotFoundException('user not found');
-    }
-  }
-  async deleteAll(): Promise<void> {
-    await this.usersRepository.deleteAll();
-  }
 
   async checkConfirmCode(code: string): Promise<ErrorResponse> {
     const user = await this.usersSqlRepository.getUserByUUIDCode(code);
@@ -111,7 +73,6 @@ export class UsersService {
     }
     return { check: true };
   }
-
   async checkCredentials(input: string, password: string): Promise<Cred> {
     const user = await this.usersSqlRepository.getUserByLoginOrEmail(input);
     if (!user) {
