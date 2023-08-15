@@ -1,23 +1,15 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { CommentsLike, CommentsLikeSchema } from './entity/commentsLike.schema';
 import { CommentsLikeService } from './commentsLike.service';
-// import { CommentsLikeRepository } from './repository/commentsLike.repository';
-import { CommentsLikeQueryRepository } from './repository/commentsLike.query-repository';
-import {CommentsLikeSqlRepository} from "./repository/commentsLikeSql.repository";
+import { CommentsLikeSqlRepository } from "./repository/commentsLikeSql.repository";
+import { CommentsLikeSqlQueryRepository } from "./repository/commentsLikeSql.query-repository";
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      { name: CommentsLike.name, schema: CommentsLikeSchema },
-    ]),
-  ],
+  imports: [],
   providers: [
     CommentsLikeService,
-    //CommentsLikeRepository,
     CommentsLikeSqlRepository,
-    CommentsLikeQueryRepository,
+    CommentsLikeSqlQueryRepository
   ],
-  exports: [CommentsLikeService, CommentsLikeQueryRepository],
+  exports: [CommentsLikeService],
 })
 export class CommentsLikeModule {}

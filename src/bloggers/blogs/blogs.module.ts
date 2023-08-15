@@ -9,13 +9,10 @@ import {
     UpdatePostByBlogCommandHandler,
     DeletePostByBlogCommandHandler
 } from "./useCase/handlers";
-import {Comments, CommentsSchema} from "../../public/comments/entity/comments.schema";
 import {BlogsController} from "./blogs.controller";
 import {PaginationService} from "../../applications/pagination.service";
-import {CommentsQueryRepository} from "./repository/comments.query-repository";
 import {PostsModule} from "../../public/posts/posts.module";
 import {BlogService} from "./blog.service";
-import {Posts, PostsSchema} from "../../public/posts/entity/posts.schema";
 import {JwtAccessStrategy} from "../../public/auth/strategies/jwt-access.strategy";
 import {UsersModule} from "../../users/users.module";
 import {BlogsSqlRepository} from "../../public/blogs/repository/blogsSql.repository";
@@ -35,10 +32,6 @@ const CommandHandlers = [
 @Module({
     imports: [
         CqrsModule,
-        MongooseModule.forFeature([
-            { name: Comments.name, schema: CommentsSchema },
-            { name: Posts.name, schema: PostsSchema},
-        ]),
         PostsModule,
         UsersModule
     ],
@@ -49,7 +42,6 @@ const CommandHandlers = [
         BlogService,
         BlogsSqlRepository,
         BlogsSqlQueryRepository,
-        CommentsQueryRepository,
         CommentsSqlQueryRepository,
         PostsSqlRepository,
         PaginationService,

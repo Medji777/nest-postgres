@@ -13,7 +13,7 @@ import { BloggerUsersModule } from "../bloggers/users/users.module";
 import { SABlogsModule } from "../sa/blogs/blogs.module";
 import { SAUsersModule } from "../sa/users/users.module";
 import { settings } from '../config';
-import {TypeOrmModule} from "@nestjs/typeorm";
+import { TypeOrmModule } from "@nestjs/typeorm";
 
 const PublicModule = [
   UsersModule,
@@ -37,7 +37,7 @@ const BloggerModule = [BloggerBlogModule, BloggerUsersModule]
       username: settings.PG_USER,
       password: settings.PG_PASSWORD,
       database: settings.PG_DB_NAME,
-      //ssl: process.env.PG_SSL === 'true',
+      ssl: process.env.PG_SSL === 'true',
       autoLoadEntities: false,
       synchronize: false,
     }),

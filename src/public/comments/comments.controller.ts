@@ -13,7 +13,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { CommentsService } from './comments.service';
 import { CheckCommentsGuard } from './guards/checkComments.guard';
 import { CommentInputModelDto, LikeInputModelDto } from './dto';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
@@ -26,7 +25,6 @@ import { DeleteCommentCommand, UpdateContentCommand, UpdateStatusLikeCommand } f
 export class CommentsController {
   constructor(
       private readonly commandBus: CommandBus,
-      private readonly commentsService: CommentsService,
       private readonly commentSqlQueryRepository: CommentsSqlQueryRepository
   ) {}
 
@@ -66,7 +64,6 @@ export class CommentsController {
     await this.commandBus.execute(
         new UpdateStatusLikeCommand(id, req.user?.id, bodyDTO)
     )
-    await this.commentsService.updateLike(id, req.user?.id, bodyDTO);
   }
 
   @Delete(':id')

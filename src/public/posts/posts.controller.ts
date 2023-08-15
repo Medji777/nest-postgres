@@ -15,26 +15,31 @@ import {
 import { Request } from 'express';
 import { CommandBus } from "@nestjs/cqrs";
 import { CreateCommentByPostCommand, UpdateStatusLikeCommand } from "./useCase/command";
-import { CommentDBModel } from '../../types/comments';
-import { CommentsQueryRepository } from '../comments/repository/comments.query-repository';
+import { CommentDBModel, CommentViewModel } from '../../types/comments';
 import { QueryPostsDto, LikeInputModelDto } from './dto';
 import { CommentInputModelDto, QueryCommentsDto } from '../comments/dto';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { GetUserInterceptor } from '../auth/interceptors/getUser.interceptor';
-import {PostsSqlQueryRepository} from "./repository/postsSql.query-repository";
+import { PostsSqlQueryRepository } from "./repository/postsSql.query-repository";
+import { CommentsSqlQueryRepository } from "../comments/repository/commentsSql.query-repository";
+import { Paginator } from "../../types/types";
+import { PostsViewModel } from "../../types/posts";
 
 @Controller('posts')
 export class PostsController {
   constructor(
       private commandBus: CommandBus,
       private readonly postsSqlQueryRepository: PostsSqlQueryRepository,
-      private readonly commentsQueryRepository: CommentsQueryRepository,
+      private readonly commentsSqlQueryRepository: CommentsSqlQueryRepository
   ) {}
 
   @Get()
   @UseInterceptors(GetUserInterceptor)
   @HttpCode(HttpStatus.OK)
-  getPosts(@Query() query: QueryPostsDto, @Req() req: Request) {
+  getPosts(
+      @Query() query: QueryPostsDto,
+      @Req() req: Request
+  ): Promise<Paginator<PostsViewModel>> {
     return this.postsSqlQueryRepository.getAll(query, req.user?.id);
   }
 
@@ -44,7 +49,7 @@ export class PostsController {
   async getPostById(
       @Param('id', ParseUUIDPipe) id: string,
       @Req() req: Request
-  ) {
+  ): Promise<PostsViewModel> {
     return this.postsSqlQueryRepository.findById(id, req.user?.id);
   }
 
@@ -53,14 +58,14 @@ export class PostsController {
   @HttpCode(HttpStatus.OK)
   async getCommentByPost(
     @Param('id', ParseUUIDPipe) id: string,
-    @Query() query: QueryCommentsDto,
+    @Query() queryDTO: QueryCommentsDto,
     @Req() req: Request,
-  ) {
-    return this.commentsQueryRepository.getCommentsByPostId(
-      id,
-      query,
-      req.user?.id,
-    );
+  ): Promise<Paginator<CommentViewModel>> {
+    return this.commentsSqlQueryRepository.getCommentsByPostId(
+        id,
+        queryDTO,
+        req.user?.id
+    )
   }
 
   @Post('/:id/comments')
@@ -83,7 +88,7 @@ export class PostsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() bodyDTO: LikeInputModelDto,
     @Req() req: Request,
-  ) {
+  ): Promise<void> {
     await this.commandBus.execute(new UpdateStatusLikeCommand(
         req.user.id,
         req.user.login,

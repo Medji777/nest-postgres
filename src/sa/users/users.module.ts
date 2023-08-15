@@ -1,6 +1,5 @@
 import {CqrsModule} from "@nestjs/cqrs";
 import {Module} from "@nestjs/common";
-import {MongooseModule} from "@nestjs/mongoose";
 import {SAUsersController} from "./users.controller";
 import {UsersService} from "./users.service";
 import {
@@ -11,11 +10,6 @@ import {
 import {PassHashService} from "../../applications/passHash.service";
 import {PaginationService} from "../../applications/pagination.service";
 import {BasicStrategy} from "../../public/auth/strategies/basic.strategy";
-import {Comments, CommentsSchema} from "../../public/comments/entity/comments.schema";
-import {CommentsLike, CommentsLikeSchema} from "../../public/comments/like/entity/commentsLike.schema";
-import {CommentsRepository} from "../../public/comments/repository/comments.repository";
-import {PostsRepository} from "../../public/posts/repository/posts.repository";
-import {Posts, PostsSchema} from "../../public/posts/entity/posts.schema";
 import {LikeCalculateService} from "../../applications/likeCalculate.service";
 import {UsersSqlQueryRepository} from "../../users/repository/users-sql.query-repository";
 import {UsersSqlRepository} from "../../users/repository/users-sql.repository";
@@ -32,20 +26,13 @@ const Repository = [
     UsersSqlRepository,
     UsersSqlQueryRepository,
     SecuritySqlRepository,
-    CommentsRepository,
     CommentsSqlRepository,
-    PostsRepository,
     PostsSqlRepository,
 ]
 
 @Module({
     imports: [
         CqrsModule,
-        MongooseModule.forFeature([
-            { name: Comments.name, schema: CommentsSchema },
-            { name: CommentsLike.name, schema: CommentsLikeSchema },
-            { name: Posts.name, schema: PostsSchema },
-        ]),
     ],
     controllers: [SAUsersController],
     providers: [

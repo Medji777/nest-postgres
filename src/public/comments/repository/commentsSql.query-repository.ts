@@ -40,7 +40,7 @@ export class CommentsSqlQueryRepository {
         userId?: string,
     ): Promise<Paginator<CommentViewModel>> {
         const [post] = await this.dateSource.query(`
-            select count(*) from "Posts" as p where p.id = $1
+            select count(p.id) from "Posts" as p where p.id = $1
         `,[id])
         if(!post) throw new NotFoundException();
 

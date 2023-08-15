@@ -28,6 +28,6 @@ export class CommentsLikeService {
     if (!like) {
       throw new NotFoundException();
     }
-    await this.commentsLikeSqlRepository.update(like.commentId, myStatus)
+    await this.commentsLikeSqlRepository.updateStatus(like.commentId, myStatus)
   }
 }

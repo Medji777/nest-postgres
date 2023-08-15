@@ -1,10 +1,7 @@
 import { forwardRef, Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
 import { CqrsModule } from "@nestjs/cqrs";
-import { Posts, PostsSchema } from './entity/posts.schema';
 import { PostsController } from './posts.controller';
 import { PostsService } from './posts.service';
-import { PostsRepository } from './repository/posts.repository';
 import { CreateCommentByPostCommandHandler, UpdateStatusLikeCommandHandler } from "./useCase/handler";
 import { BlogsModule } from '../blogs/blogs.module';
 import { CommentsModule } from '../comments/comments.module';
@@ -24,7 +21,6 @@ const commandHandlers = [UpdateStatusLikeCommandHandler, CreateCommentByPostComm
 @Module({
   imports: [
     CqrsModule,
-    MongooseModule.forFeature([{name: Posts.name, schema: PostsSchema}]),
     forwardRef(() => BlogsModule),
     CommentsModule,
     PostsLikeModule,
@@ -33,7 +29,6 @@ const commandHandlers = [UpdateStatusLikeCommandHandler, CreateCommentByPostComm
   controllers: [PostsController],
   providers: [
     PostsService,
-    PostsRepository,
     PostsSqlRepository,
     PostsSqlQueryRepository,
     BlogsUsersBanSqlRepository,
@@ -44,6 +39,6 @@ const commandHandlers = [UpdateStatusLikeCommandHandler, CreateCommentByPostComm
     CheckBlogIdValidate,
     ...commandHandlers
   ],
-  exports: [PostsService, PostsRepository, PostsSqlQueryRepository],
+  exports: [PostsService, PostsSqlQueryRepository],
 })
 export class PostsModule {}

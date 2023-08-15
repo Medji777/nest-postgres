@@ -77,7 +77,7 @@ export class PostsSqlRepository {
         return !!res[1]
     }
 
-    async updateCountLikesInPost(postId: string, likeInfo: LikeInfoModel): Promise<boolean> {
+    async updateCountLikesInPosts(postId: string, likeInfo: LikeInfoModel): Promise<boolean> {
         const res = await this.dataSource.query(`
             update "Posts" as p 
             set "likesCount"= $2, "dislikesCount"= $3
@@ -86,7 +86,7 @@ export class PostsSqlRepository {
         return !!res[1]
     }
 
-    async updateCountLikesInPost1(postId: string, userId: string): Promise<boolean> {
+    async updateCountLikesInPost(postId: string, userId: string): Promise<boolean> {
         const res = await this.dataSource.query(`
             with like_agg as (
                 select count(case when pl."myStatus" = 'Like' and u."isBanned"=false then 1 else NULL end) as "likesCount",

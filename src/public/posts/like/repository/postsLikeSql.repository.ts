@@ -40,8 +40,4 @@ export class PostsLikeSqlRepository {
         `,[userId,postId,status])
         return !!res[1]
     }
-
-    async deleteAll(): Promise<void> {
-        await this.dataSource.query(`TRUNCATE "PostsLike" CASCADE`);
-    }
 }

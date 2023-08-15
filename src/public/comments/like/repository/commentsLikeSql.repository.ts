@@ -31,7 +31,7 @@ export class CommentsLikeSqlRepository {
         return data
     }
 
-    async update(id: string, myStatus: LikeStatus): Promise<boolean> {
+    async updateStatus(id: string, myStatus: LikeStatus): Promise<boolean> {
         const res: UpdateResponse<CommentsLikeSql> = await this.dataSource.query(
             `update "CommentsLike" set "myStatus"=$2 where "commentId"=$1`,
             [id, myStatus]
