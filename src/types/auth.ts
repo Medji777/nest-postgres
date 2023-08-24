@@ -36,3 +36,9 @@ export type TokenPayload = {
     secure: boolean;
   };
 };
+
+export type UsersMeView = {
+  email: string;
+  login: string;
+  userId: string;
+}

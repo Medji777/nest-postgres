@@ -5,7 +5,7 @@ import {BasicGuard} from "../../public/auth/guards/basic.guard";
 import {QueryBlogsDTO} from "../../public/blogs/dto";
 import {BanBlogInputDto} from "./dto";
 import {Paginator} from "../../types/types";
-import {BlogsViewModel} from "../../types/blogs";
+import {BlogsSAViewModel} from "../../types/blogs";
 import {BlogsSqlQueryRepository} from "./repository/blogsSql.query-repository";
 
 @Controller('sa/blogs')
@@ -17,7 +17,7 @@ export class SABlogsController {
     @UseGuards(BasicGuard)
     @Get()
     @HttpCode(HttpStatus.OK)
-    async getAll(@Query() queryDTO: QueryBlogsDTO): Promise<Paginator<BlogsViewModel>> {
+    async getAll(@Query() queryDTO: QueryBlogsDTO): Promise<Paginator<BlogsSAViewModel>> {
         return this.blogsSqlQueryRepository.getAll(queryDTO)
     }
 

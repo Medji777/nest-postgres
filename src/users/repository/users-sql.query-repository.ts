@@ -32,6 +32,11 @@ export class UsersSqlQueryRepository {
             pageNumber: restQuery.pageNumber
         })
     }
+    async getUserByPK(id: string): Promise<UsersSqlType> {
+        const query = `select u.* from "Users" u where u.id = $1`;
+        const [data]: DataResponse<UsersSqlType> = await this.dataSource.query(query,[id])
+        return data
+    }
     async getUserByLoginOrEmail(uniqueField: string): Promise<UsersSqlType> {
         const query = `select u.* from "Users" u 
                        where u.login = $1 or u.email = $1`;

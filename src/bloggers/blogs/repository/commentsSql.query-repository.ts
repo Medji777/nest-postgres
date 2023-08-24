@@ -5,10 +5,9 @@ import {PaginationService} from "../../../applications/pagination.service";
 import {PaginationDto} from "../../../utils/dto/pagination.dto";
 import {ArrayDataResponse, ResponseDataCount} from "../../../types/sql/types";
 import {CommentSqlModel} from "../../../types/sql/comments.sql";
-import {CommentViewModel, PostInfo} from "../../../types/comments";
+import {CommentViewType, PostInfo} from "../../../types/comments";
 import {Paginator} from "../../../types/types";
 
-type CommentViewType = CommentViewModel & {postInfo: PostInfo}
 type CommentSqlType = CommentSqlModel & {postInfo: PostInfo}
 
 @Injectable()

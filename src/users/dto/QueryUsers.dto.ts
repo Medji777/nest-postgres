@@ -1,4 +1,4 @@
-import { IsOptional} from 'class-validator';
+import {IsOptional} from 'class-validator';
 import { Trim, BanStatus as BanStatusSanitize, Stringify } from '../../utils/decorators';
 import { PaginationDto } from '../../utils/dto/pagination.dto';
 import { QueryUsers } from '../../types/users';

@@ -47,7 +47,7 @@ export class UsersSqlRepository {
         const query = `
                     select u.* from "Users" u 
                     where u.login = $1 or u.email = $1
-                    `;
+        `;
         const [data]: UsersSqlType[] = await this.dataSource.query(query,[uniqueField])
         return data
     }
@@ -55,7 +55,7 @@ export class UsersSqlRepository {
         const query = `
                     select u.* from "Users" u 
                     where u."emailConfirmationCode" = $1 or u."passwordConfirmationCode" = $1
-                    `;
+        `;
         const [data]: UsersSqlType[] = await this.dataSource.query(query,[code])
         return data
     }

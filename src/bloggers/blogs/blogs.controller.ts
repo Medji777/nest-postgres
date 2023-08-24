@@ -28,6 +28,8 @@ import {BlogsSqlQueryRepository as BloggerQueryRepository} from "../../public/bl
 import {CommentsSqlQueryRepository as BloggerCommentsQueryRepository} from "./repository/commentsSql.query-repository";
 import {UpdatePostDto} from "./dto";
 import {PaginationDto} from "../../utils/dto/pagination.dto";
+import {Paginator} from "../../types/types";
+import {CommentViewType} from "../../types/comments";
 
 @Controller('blogger/blogs')
 export class BlogsController {
@@ -43,7 +45,7 @@ export class BlogsController {
     async getAllCommentsWithPostByBlog(
         @Query() queryDTO: PaginationDto,
         @User() user: UsersSqlType
-    ) {
+    ): Promise<Paginator<CommentViewType>> {
         return this.bloggerCommentsSqlQueryRepository
             .getAllCommentsWithPostByBlog(queryDTO, user.id)
     }

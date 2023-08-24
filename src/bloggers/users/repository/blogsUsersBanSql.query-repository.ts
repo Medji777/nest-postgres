@@ -24,7 +24,7 @@ export class BlogsUsersBanSqlQueryRepository {
         queryDto: QueryUsersDto
     ): Promise<Paginator<UsersBloggerViewModel>> {
         const [blog]: DataResponse<BlogsSqlType> = await this.dataSource.query(
-            `select * from "Blogs" where "blogId"=$1`,[blogId]);
+            `select b.id, b."userId" from "Blogs" as b where b."blogId"=$1`,[blogId]);
         if(!blog) throw new NotFoundException('blog not found');
         if(blog.userId !== userId) throw new ForbiddenException();
 
@@ -35,12 +35,13 @@ export class BlogsUsersBanSqlQueryRepository {
         const filterOptions = `u.login ILIKE $2`
 
         const query = `
-             select ubb.*, u.login from "UsersBlogsBan" ubb  
+             select ubb."userId", ubb."banDate", ubb."banReason", u.login 
+             from "UsersBlogsBan" as ubb  
              inner join "Users" u on u.id = ubb."userId"
              where ubb."blogId"=$1 and u."isBanned"=false and ${filterOptions} ${paginateOptions}
         `;
         const queryCount = `
-            select count(ubb.*) from "UsersBlogsBan" ubb  
+            select count(ubb."userId") from "UsersBlogsBan" as ubb  
             inner join "Users" u on u.id = ubb."userId"
             where ubb."blogId"=$1 and u."isBanned"=false and ${filterOptions}
         `;

@@ -25,9 +25,7 @@ export type PostInfo = {
   blogName: string
 }
 
-export type BloggerCommentViewModel = Omit<CommentViewModel, 'likesInfo'> & {
-  postInfo: PostInfo
-}
+export type CommentViewType = CommentViewModel & {postInfo: PostInfo}
 
 export type CommentDBModel = {
   id: string;

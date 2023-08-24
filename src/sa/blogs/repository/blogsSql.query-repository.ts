@@ -24,14 +24,15 @@ export class BlogsSqlQueryRepository {
         const {searchNameTerm, ...restQuery} = queryDto;
         const paginateOptions = this.paginationService.paginationOptions(restQuery)
         const filterOptions = 'name ILIKE $1'
-        const dataArray: ArrayDataResponse<BlogsSAViewSqlModel> = await this.dataSource.query(
-            `select b.id, b.name, b.description, 
+        const query = `select b.id, b.name, b.description, 
                    b."websiteUrl", b."createdAt", b."isMembership",
-                   jsonb_create_object('userId',b."userId",'userLogin',u.login) as "blogOwnerInfo",
-                   jsonb_create_object('isBanned',b."isBanned",'banDate',b."banDate") as "banInfo" from "Blogs" as b 
-                   inner join "Users" as u on u.id = b."userId"
-                   where ${filterOptions} ${paginateOptions};`,
-            [`%${searchNameTerm}%`]
+                   jsonb_build_object('userId',b."userId",'userLogin',u.login) as "blogOwnerInfo",
+                   jsonb_build_object('isBanned',b."isBanned",'banDate',b."banDate") as "banInfo" 
+                   from "Blogs" as b 
+                   left join "Users" as u on u.id = b."userId"
+                   where ${filterOptions} ${paginateOptions};`;
+        const dataArray: ArrayDataResponse<BlogsSAViewSqlModel> = await this.dataSource.query(
+            query, [`%${searchNameTerm}%`]
         )
         const [data]: ResponseDataCount = await this.dataSource.query(
             `select count(*) from "Blogs" where ${filterOptions}`,

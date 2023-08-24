@@ -21,6 +21,7 @@ import {BanInputDto} from "./dto";
 import {UsersSqlQueryRepository} from "../../users/repository/users-sql.query-repository";
 import {Paginator} from "../../types/types";
 import {UserViewModelSA} from "../../types/users";
+import {UsersSqlType} from "../../types/sql/user.sql";
 
 @Controller('sa/users')
 export class SAUsersController {
@@ -35,6 +36,13 @@ export class SAUsersController {
     @HttpCode(HttpStatus.OK)
     async getAllUsers(@Query() queryDTO: QueryUsersDto): Promise<Paginator<UserViewModelSA>> {
         return this.usersSqlQueryRepository.getAll(queryDTO)
+    }
+
+    @UseGuards(BasicGuard)
+    @Get('test')
+    @HttpCode(HttpStatus.OK)
+    async getUser(@Query('email') email: string ): Promise<UsersSqlType> {
+        return this.usersSqlQueryRepository.getUserByLoginOrEmail(email)
     }
 
     @UseGuards(BasicGuard)
