@@ -190,7 +190,7 @@ export const errorsMessageForBloggerBanUser = {
 export const errorsMessageForBanBlog = {
     errorsMessages: [
         {
-            message: 'should not be empty',
+            message: 'isBanned must be a boolean value',
             field: 'isBanned'
         }
     ]

@@ -19,14 +19,21 @@ export class BlogsSqlQueryRepository {
         const { searchNameTerm, ...restQuery } = queryDTO;
 
         const paginateOptions = this.paginationService.paginationOptions(restQuery);
-        let filterOptions = `name ILIKE $1`;
+        let filterOptions = `b."isBanned"=false and u."isBanned"=false and b.name ILIKE $1`;
 
         if(userId) {
-            filterOptions = filterOptions + ` and "userId"=${userId}`;
+            filterOptions = filterOptions + ` and "b.userId"=${userId}`;
         }
 
-        const query = `select * from "Blogs" where ${filterOptions} ${paginateOptions}`;
-        const queryCount = `select count(*) from "Blogs" where ${filterOptions}`;
+        const query = `
+                select b.* from "Blogs" as b 
+                inner join "Users" as u on u.id = b."userId"
+                where ${filterOptions} ${paginateOptions}
+        `;
+        const queryCount = `
+                select count(*) from "Blogs" as b 
+                inner join "Users" as u on u.id = b."userId"
+                where ${filterOptions}`;
 
         const dataArray: ArrayDataResponse<BlogsSqlType> = await this.dataSource.query(query,[`%${searchNameTerm}%`])
         const [data] = await this.dataSource.query(queryCount, [`%${searchNameTerm}%`])
