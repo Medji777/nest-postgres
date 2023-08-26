@@ -24,7 +24,7 @@ export class BlogsUsersBanSqlQueryRepository {
         queryDto: QueryUsersDto
     ): Promise<Paginator<UsersBloggerViewModel>> {
         const [blog]: DataResponse<BlogsSqlType> = await this.dataSource.query(
-            `select b.id, b."userId" from "Blogs" as b where b."blogId"=$1`,[blogId]);
+            `select b.id, b."userId" from "Blogs" as b where b.id=$1`,[blogId]);
         if(!blog) throw new NotFoundException('blog not found');
         if(blog.userId !== userId) throw new ForbiddenException();
 

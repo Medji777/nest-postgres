@@ -42,11 +42,9 @@ export class PostsSqlRepository {
 
     async update(postId: string, payload: PostInputModel): Promise<boolean> {
         const res: UpdateResponse<PostsSqlType> = await this.dataSource.query(
-            `update "Posts" as p 
-                   set p.title=$1, 
-                   p."shortDescription"=$2,
-                   p.content=$3
-                   p."blogId"=$4 where p.id=$5`,
+            `update "Posts"
+                   set title=$1, "shortDescription"=$2, content=$3, "blogId"=$4 
+                   where id=$5`,
             [payload.title,payload.shortDescription,payload.content,payload.blogId,postId]
         );
         return !!res[1]
@@ -59,7 +57,7 @@ export class PostsSqlRepository {
                 count(case when pl."myStatus" = 'Dislike' and u."isBanned"=false then 1 else NULL end) as "dislikesCount"
                 from "Posts" as p
                 left join "PostsLike" pl on pl."userId"=$1
-                left join "Users" u on u.id = $1
+                left join "Users" u on u.id = pl."userId"
                 where p.id = pl."postId" 
             )
             update "Posts" as p
@@ -67,10 +65,9 @@ export class PostsSqlRepository {
             "dislikesCount"= likes_agg."dislikesCount"
             from "PostsLike" as pl, "Users" as u, "Blogs" as b, likes_agg
             where pl."userId"= $1
-            and u.id = $1
+            and u.id = pl."userId"
             and p.id = pl."postId"
             and p."blogId" = b.id
-            and u."isBanned"=false
             and b."isBanned"=false    
         `;
         const res: UpdateResponse<PostsSqlType> = await this.dataSource.query(query,[userId])

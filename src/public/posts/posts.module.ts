@@ -15,8 +15,10 @@ import { CheckBlogIdValidate } from "../../utils/validates";
 import { PostsSqlRepository } from "./repository/postsSql.repository";
 import { BlogsUsersBanSqlRepository } from "../../bloggers/users/repository/blogsUsersBanSql.repository";
 import { PostsSqlQueryRepository } from "./repository/postsSql.query-repository";
+import { CreateCommentCommandHandler } from "../comments/useCase/handler";
+import {CommentsSqlRepository} from "../comments/repository/commentsSql.repository";
 
-const commandHandlers = [UpdateStatusLikeCommandHandler, CreateCommentByPostCommandHandler];
+const commandHandlers = [UpdateStatusLikeCommandHandler, CreateCommentByPostCommandHandler, CreateCommentCommandHandler];
 
 @Module({
   imports: [
@@ -32,6 +34,7 @@ const commandHandlers = [UpdateStatusLikeCommandHandler, CreateCommentByPostComm
     PostsSqlRepository,
     PostsSqlQueryRepository,
     BlogsUsersBanSqlRepository,
+    CommentsSqlRepository,
     JwtAccessStrategy,
     LikeCalculateService,
     JwtService,

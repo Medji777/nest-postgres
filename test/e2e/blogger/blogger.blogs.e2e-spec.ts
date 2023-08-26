@@ -27,8 +27,11 @@ import {savePost} from "../../helpers/factories/posts.factory";
 import {saveComment} from "../../helpers/factories/comments.factory";
 import {correctComment} from "../../stubs/comments.stub";
 import {CommentViewType, PostInfo} from "../../../src/types/comments";
+import {randomUUID} from "crypto";
 
 describe('BloggerBlogsController (e2e)', () => {
+
+    const id = randomUUID()
 
     let nestAppTest: INestApplication;
     let instance: SuperTest<Test>;
@@ -118,8 +121,8 @@ describe('BloggerBlogsController (e2e)', () => {
             });
         });
     });
-    describe(`4 PUT ${bloggerBlogsPath}/id:`, () => {
-        it(`4.1 should return 401 without authorization`, async () => {
+    describe(`3 PUT ${bloggerBlogsPath}/id:`, () => {
+        it(`3.1 should return 401 without authorization`, async () => {
             const user = createUser();
             await saveUser(instance, user);
             const pairToken = await loginAndGetPairToken(instance, user);
@@ -129,7 +132,7 @@ describe('BloggerBlogsController (e2e)', () => {
                 .send(correctNewBlog)
                 .expect(HttpStatus.UNAUTHORIZED);
         });
-        it(`4.2 should return 400 with incorrect data`, async () => {
+        it(`3.2 should return 400 with incorrect data`, async () => {
             const user = createUser();
             await saveUser(instance, user);
             const pairToken = await loginAndGetPairToken(instance, user);
@@ -141,7 +144,7 @@ describe('BloggerBlogsController (e2e)', () => {
                 .expect(HttpStatus.BAD_REQUEST);
             expect(errMes.body).toEqual(errorsMessageForIncorrectBlog);
         });
-        it(`4.3 should return 204 with correct data`, async () => {
+        it(`3.3 should return 204 with correct data`, async () => {
             const user = createUser();
             await saveUser(instance, user);
             const pairToken = await loginAndGetPairToken(instance, user);
@@ -168,18 +171,18 @@ describe('BloggerBlogsController (e2e)', () => {
                 ])
             });
         });
-        it(`4.4 should return 404 for not existing blog`, async () => {
+        it(`3.4 should return 404 for not existing blog`, async () => {
             const user = createUser();
             await saveUser(instance, user);
             const pairToken = await loginAndGetPairToken(instance, user);
 
             await instance
-                .put(bloggerBlogsPath + '/999')
+                .put(bloggerBlogsPath + '/' + id)
                 .set({[authHeader]: bearerAccessToken(pairToken.accessToken)})
                 .send(correctNewBlog)
                 .expect(HttpStatus.NOT_FOUND);
         });
-        it(`4.5 should return 403 if blogId another user `, async () => {
+        it(`3.5 should return 403 if blogId another user `, async () => {
             const users = createUsers(2);
             await saveUsers(instance, users);
             const pairTokens = await loginAndGetPairTokens(instance, users);
@@ -192,8 +195,8 @@ describe('BloggerBlogsController (e2e)', () => {
                 .expect(HttpStatus.FORBIDDEN);
         });
     });
-    describe(`5 DELETE ${bloggerBlogsPath}/id:`, () => {
-        it(`5.1 should return 401 without authorization`, async () => {
+    describe(`4 DELETE ${bloggerBlogsPath}/id:`, () => {
+        it(`4.1 should return 401 without authorization`, async () => {
             const user = createUser();
             await saveUser(instance, user);
             const pairToken = await loginAndGetPairToken(instance, user);
@@ -202,17 +205,17 @@ describe('BloggerBlogsController (e2e)', () => {
             await instance.delete(bloggerBlogsPath + '/' + blogId)
                 .expect(HttpStatus.UNAUTHORIZED);
         });
-        it(`5.2 should return 404 for not existing blog`, async () => {
+        it(`4.2 should return 404 for not existing blog`, async () => {
             const user = createUser();
             await saveUser(instance, user);
             const pairToken = await loginAndGetPairToken(instance, user);
             await saveBlog(instance, pairToken.accessToken);
 
-            await instance.delete(bloggerBlogsPath + '/999')
+            await instance.delete(bloggerBlogsPath + '/' + id)
                 .set({[authHeader]: bearerAccessToken(pairToken.accessToken)})
                 .expect(HttpStatus.NOT_FOUND);
         });
-        it(`5.3 should return 204 and delete blog`, async () => {
+        it(`4.3 should return 204 and delete blog`, async () => {
             const user = createUser();
             await saveUser(instance, user);
             const pairToken = await loginAndGetPairToken(instance, user);
@@ -226,7 +229,7 @@ describe('BloggerBlogsController (e2e)', () => {
                 .expect(HttpStatus.OK)
                 .expect(defaultPagination);
         });
-        it(`5.4 should return 403 if blogId another user`, async () => {
+        it(`4.4 should return 403 if blogId another user`, async () => {
             const users = createUsers(2);
             await saveUsers(instance, users);
             const pairTokens = await loginAndGetPairTokens(instance, users);
@@ -238,8 +241,8 @@ describe('BloggerBlogsController (e2e)', () => {
                 .expect(HttpStatus.FORBIDDEN);
         });
     });
-    describe(`6 POST ${bloggerBlogsPath}/id/posts:`, () => {
-        it(`6.1 should return 401 without authorization`, async () => {
+    describe(`5 POST ${bloggerBlogsPath}/id/posts:`, () => {
+        it(`5.1 should return 401 without authorization`, async () => {
             const user = createUser();
             await saveUser(instance, user);
             const pairToken = await loginAndGetPairToken(instance, user);
@@ -252,7 +255,7 @@ describe('BloggerBlogsController (e2e)', () => {
             const response = await instance.get('/posts').expect(HttpStatus.OK);
             expect(response.body).toEqual<Paginator<PostsViewModel>>(defaultPagination);
         });
-        it(`6.2 should return 400 with incorrect data`, async () => {
+        it(`5.2 should return 400 with incorrect data`, async () => {
             const user = createUser();
             await saveUser(instance, user);
             const pairToken = await loginAndGetPairToken(instance, user);
@@ -264,7 +267,7 @@ describe('BloggerBlogsController (e2e)', () => {
                 .expect(HttpStatus.BAD_REQUEST);
             expect(errMes.body).toEqual(errorsMessageForIncorrectPost);
         });
-        it(`6.3 should return 201 with correct data`, async () => {
+        it(`5.3 should return 201 with correct data`, async () => {
             const user = createUser();
             await saveUser(instance, user);
             const pairToken = await loginAndGetPairToken(instance, user);
@@ -283,18 +286,18 @@ describe('BloggerBlogsController (e2e)', () => {
                 extendedLikesInfo: expect.objectContaining(defaultExtendedLikesInfo)
             });
         });
-        it(`6.4 should return 404 for not existing post by blog's id`, async () => {
+        it(`5.4 should return 404 for not existing post by blog's id`, async () => {
             const user = createUser();
             await saveUser(instance, user);
             const pairToken = await loginAndGetPairToken(instance, user);
             await saveBlog(instance, pairToken.accessToken);
 
-            await instance.post(bloggerBlogsPath + '/999/posts')
+            await instance.post(bloggerBlogsPath + `/${id}/posts`)
                 .set({[authHeader]: bearerAccessToken(pairToken.accessToken)})
                 .send(correctPost)
                 .expect(HttpStatus.NOT_FOUND);
         });
-        it(`6.5 should return 403 if blogId another user`, async () => {
+        it(`5.5 should return 403 if blogId another user`, async () => {
             const users = createUsers(2);
             await saveUsers(instance, users);
             const pairTokens = await loginAndGetPairTokens(instance, users);
@@ -307,8 +310,8 @@ describe('BloggerBlogsController (e2e)', () => {
                 .expect(HttpStatus.FORBIDDEN);
         });
     });
-    describe(`7 PUT ${bloggerBlogsPath}/id/posts:`, () => {
-        it(`7.1 should return 401 without authorization`, async () => {
+    describe(`6 PUT ${bloggerBlogsPath}/id/posts:`, () => {
+        it(`6.1 should return 401 without authorization`, async () => {
             const user = createUser();
             await saveUser(instance, user);
             const pairToken = await loginAndGetPairToken(instance, user);
@@ -318,7 +321,7 @@ describe('BloggerBlogsController (e2e)', () => {
             await instance.put(bloggerBlogsPath + '/' + blogId + '/posts' + '/' + postId)
                 .expect(HttpStatus.UNAUTHORIZED);
         });
-        it(`7.2 should return 400 with incorrect data`, async () => {
+        it(`6.2 should return 400 with incorrect data`, async () => {
             const user = createUser();
             await saveUser(instance, user);
             const pairToken = await loginAndGetPairToken(instance, user);
@@ -331,17 +334,17 @@ describe('BloggerBlogsController (e2e)', () => {
                 .expect(HttpStatus.BAD_REQUEST);
             expect(errMes.body).toEqual(errorsMessageForIncorrectPostWithBlogId);
         });
-        it(`7.3 should return 404 with incorrect id`, async () => {
+        it(`6.3 should return 404 with incorrect id`, async () => {
             const user = createUser();
             await saveUser(instance, user);
             const pairToken = await loginAndGetPairToken(instance, user);
 
-            await instance.put(bloggerBlogsPath + '/999/posts/999')
+            await instance.put(bloggerBlogsPath + `/${id}/posts/${id}`)
                 .set({[authHeader]: bearerAccessToken(pairToken.accessToken)})
                 .send(correctNewPost)
                 .expect(HttpStatus.NOT_FOUND);
         });
-        it(`7.4 should return 403 if id another user`, async () => {
+        it(`6.4 should return 403 if id another user`, async () => {
             const users = createUsers(2);
             await saveUsers(instance, users);
             const pairTokens = await loginAndGetPairTokens(instance, users);
@@ -359,7 +362,7 @@ describe('BloggerBlogsController (e2e)', () => {
                 .send(correctNewPost)
                 .expect(HttpStatus.FORBIDDEN);
         });
-        it(`7.5 should return 204 with correct data`, async () => {
+        it(`6.5 should return 204 with correct data`, async () => {
             const user = createUser();
             await saveUser(instance, user);
             const pairToken = await loginAndGetPairToken(instance, user);
@@ -382,8 +385,8 @@ describe('BloggerBlogsController (e2e)', () => {
             });
         });
     });
-    describe(`8 DELETE ${bloggerBlogsPath}/id/posts:`, () => {
-        it(`8.1 should return 401 without authorization`, async () => {
+    describe(`7 DELETE ${bloggerBlogsPath}/id/posts:`, () => {
+        it(`7.1 should return 401 without authorization`, async () => {
             const user = createUser();
             await saveUser(instance, user);
             const pairToken = await loginAndGetPairToken(instance, user);
@@ -393,16 +396,16 @@ describe('BloggerBlogsController (e2e)', () => {
             await instance.delete(bloggerBlogsPath + '/' + blogId + '/posts' + '/' + postId)
                 .expect(HttpStatus.UNAUTHORIZED);
         });
-        it(`8.2 should return 404 with incorrect id`, async () => {
+        it(`7.2 should return 404 with incorrect id`, async () => {
             const user = createUser();
             await saveUser(instance, user);
             const pairToken = await loginAndGetPairToken(instance, user);
 
-            await instance.delete(bloggerBlogsPath + '/999/posts/999')
+            await instance.delete(bloggerBlogsPath + `/${id}/posts/${id}`)
                 .set({[authHeader]: bearerAccessToken(pairToken.accessToken)})
                 .expect(HttpStatus.NOT_FOUND);
         });
-        it(`8.3 should return 403 if id another user`, async () => {
+        it(`7.3 should return 403 if id another user`, async () => {
             const users = createUsers(2);
             await saveUsers(instance, users);
             const pairTokens = await loginAndGetPairTokens(instance, users);
@@ -419,7 +422,7 @@ describe('BloggerBlogsController (e2e)', () => {
                 .set({[authHeader]: bearerAccessToken(pairTokens[0].accessToken)})
                 .expect(HttpStatus.FORBIDDEN);
         });
-        it(`8.4 should return 204 and delete post`, async () => {
+        it(`7.4 should return 204 and delete post`, async () => {
             const user = createUser();
             await saveUser(instance, user);
             const pairToken = await loginAndGetPairToken(instance, user);
@@ -434,11 +437,11 @@ describe('BloggerBlogsController (e2e)', () => {
             expect(response.body).toEqual<Paginator<PostsViewModel>>(defaultPagination);
         });
     });
-    describe(`9 GET ${bloggerBlogsPath}/comments:`, () => {
-        it(`9.1 should return 401 without authorization`, async () => {
+    describe(`8 GET ${bloggerBlogsPath}/comments:`, () => {
+        it(`8.1 should return 401 without authorization`, async () => {
             await instance.get(bloggerBlogsPath + '/comments').expect(HttpStatus.UNAUTHORIZED);
         });
-        it(`9.2 GET should return 200 and comments`, async () => {
+        it(`8.2 GET should return 200 and comments`, async () => {
             const user = createUser();
             const userId = await saveUser(instance, user);
             const pairToken = await loginAndGetPairToken(instance, user);

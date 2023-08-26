@@ -29,7 +29,7 @@ import {PostsViewModel} from "../../../src/types/posts";
 import {CommentViewModel} from "../../../src/types/comments";
 import {BlogsViewModel} from "../../../src/types/blogs";
 import {defaultExtendedLikesInfo, defaultLikesInfo} from "../../helpers/mocks/likesInfo.mock";
-import {LikesInfoViewModel} from "../../../src/types/likes";
+//import {LikesInfoViewModel} from "../../../src/types/likes";
 
 describe('SAUsersController (e2e)',()=>{
     const id = randomUUID();
@@ -73,7 +73,8 @@ describe('SAUsersController (e2e)',()=>{
                 .expect(HttpStatus.OK);
             expect(response.body).toEqual<Paginator<UserViewModelSA>>(expect.objectContaining({
                 ...defaultPagination,
-                ...query
+                page: 2,
+                pageSize: 5
             }));
         });
         it(`1.4 should return 200 and one user in array`, async () => {
@@ -104,7 +105,6 @@ describe('SAUsersController (e2e)',()=>{
             });
         });
     })
-
     describe(`2 POST ${saUsersPath}:`, () => {
         it(`2.1 should return 401 without authorization`, async () => {
             const user = createUser();
@@ -138,7 +138,6 @@ describe('SAUsersController (e2e)',()=>{
             });
         });
     })
-
     describe(`3 DELETE ${saUsersPath}/id:`, () => {
         it(`3.1 should return 401 without authorization`, async () => {
             const user = createUser();
@@ -165,7 +164,6 @@ describe('SAUsersController (e2e)',()=>{
             expect(response.body).toEqual<Paginator<UserViewModelSA>>(defaultPagination);
         });
     })
-
     describe(`4 PUT ${saUsersPath}/id/ban:`, () => {
         it(`4.1 should return 401 without authorization`, async () => {
             const user = createUser();
@@ -189,7 +187,6 @@ describe('SAUsersController (e2e)',()=>{
             const blogId = await saveBlog(instance, pairToken.accessToken);
             const postId = await savePost(instance, pairToken.accessToken, blogId);
             const commentId = await saveComment(instance, pairToken.accessToken, postId);
-
             await instance.put(`${saUsersPath}/${userId}/ban`)
                 .set({[authHeader]: authBasic})
                 .send(banInfo)
@@ -227,11 +224,8 @@ describe('SAUsersController (e2e)',()=>{
             const pairTokens = await loginAndGetPairTokens(instance, users);
             const blogId = await saveBlog(instance, pairTokens[0].accessToken);
             const postId = await savePost(instance, pairTokens[0].accessToken, blogId);
-            const commentId = await saveComment(
-                instance,
-                pairTokens[0].accessToken,
-                postId
-            );
+            const commentId = await saveComment(instance, pairTokens[0].accessToken, postId);
+
             await saveCommentLike(instance, pairTokens[1].accessToken, commentId);
             await savePostLike(instance, pairTokens[1].accessToken, postId);
 
@@ -241,7 +235,6 @@ describe('SAUsersController (e2e)',()=>{
                 .expect(HttpStatus.NO_CONTENT);
 
             const response = await instance.get(`${CommentsPath}/${commentId}`).expect(HttpStatus.OK);
-
             expect(response.body).toEqual<CommentViewModel>({
                 id: commentId,
                 ...correctComment,
@@ -250,11 +243,10 @@ describe('SAUsersController (e2e)',()=>{
                     userLogin: users[0].login
                 },
                 createdAt: expect.any(String),
-                likesInfo: expect.objectContaining<LikesInfoViewModel>(defaultLikesInfo)
+                likesInfo: defaultLikesInfo
             });
 
             const response2 = await instance.get(`${PostsPath}/${postId}`).expect(HttpStatus.OK);
-
             expect(response2.body).toEqual<PostsViewModel>({
                 id: postId,
                 ...correctPost,

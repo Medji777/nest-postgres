@@ -17,9 +17,10 @@ import {
   UpdateStatusLikeCommandHandler
 } from "./useCase/handler";
 import { CommentsLikeSqlRepository } from "./like/repository/commentsLikeSql.repository";
+import {BlogsUsersBanSqlRepository} from "../../bloggers/users/repository/blogsUsersBanSql.repository";
 
 const CommandHandlers = [UpdateContentCommandHandler, DeleteCommentCommandHandler, UpdateStatusLikeCommandHandler];
-const Repositories = [CommentsSqlRepository,CommentsSqlQueryRepository,CommentsLikeSqlRepository];
+const Repositories = [CommentsSqlRepository,CommentsSqlQueryRepository,CommentsLikeSqlRepository,BlogsUsersBanSqlRepository];
 const Strategy = [JwtAccessStrategy];
 const Services = [LikeCalculateService,PaginationService,JwtService]
 

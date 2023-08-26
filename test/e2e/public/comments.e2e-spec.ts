@@ -25,7 +25,6 @@ import {defaultPagination} from "../../helpers/mocks/pagination.mock";
 import {defaultLikesInfo} from "../../helpers/mocks/likesInfo.mock";
 import {createNestAppTest} from "../../main.test";
 
-
 describe('CommentsController (e2e)', () => {
     const id = randomUUID()
     let nestAppTest: INestApplication;
@@ -73,7 +72,7 @@ describe('CommentsController (e2e)', () => {
     });
     describe(`2 PUT ${CommentsPath}/id:`, () => {
         it(`2.1 should return 401 without authorization`, async () => {
-            await instance.put('/comments/999')
+            await instance.put(`${CommentsPath}/${id}`)
                 .send(correctCommentNew)
                 .expect(HttpStatus.UNAUTHORIZED);
         });
@@ -107,11 +106,7 @@ describe('CommentsController (e2e)', () => {
             const pairTokens = await loginAndGetPairTokens(instance, users);
             const blogId = await saveBlog(instance, pairTokens[0].accessToken);
             const postId = await savePost(instance, pairTokens[0].accessToken, blogId);
-            const commentId = await saveComment(
-                instance,
-                pairTokens[0].accessToken,
-                postId
-            );
+            const commentId = await saveComment(instance, pairTokens[0].accessToken, postId);
 
             await instance.put(`${CommentsPath}/${commentId}`)
                 .set(authHeader, bearerAccessToken(pairTokens[1].accessToken))

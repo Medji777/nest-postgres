@@ -6,7 +6,7 @@ import {PaginationDto} from "../../../utils/dto/pagination.dto";
 import {ArrayDataResponse, ResponseDataCount} from "../../../types/sql/types";
 import {CommentSqlModel} from "../../../types/sql/comments.sql";
 import {CommentViewType, PostInfo} from "../../../types/comments";
-import {Paginator} from "../../../types/types";
+import {LikeStatus, Paginator} from "../../../types/types";
 
 type CommentSqlType = CommentSqlModel & {postInfo: PostInfo}
 
@@ -23,17 +23,17 @@ export class CommentsSqlQueryRepository {
                    jsonb_build_object('userId',uc.id,'userLogin',uc.login) as "commentatorInfo",
                    c."createdAt",
                    jsonb_build_object('likesCount',c."likesCount",'dislikesCount',c."dislikesCount",'myStatus', 
-                        jsonb_agg(case when ${!!userId} and cl."userId"=${userId} then cl."myStatus" else 'None' end)
+                        jsonb_agg(case when ${!!userId} and cl."userId"='${userId}' then cl."myStatus" else 'None' end)
                    ) as "likesInfo",
                    jsonb_build_object('id',p.id,'title',p.title,'blogId',p."blogId",'blogName',b.name) as "postInfo"
                    from "Comments" as c
-                   left join "CommentsLike" as cl on cl."commentsId" = c.id
+                   left join "CommentsLike" as cl on cl."commentId" = c.id
                    left join "Users" as uc on uc.id = c."userId"
                    left join "Posts" as p on c."postId" = p.id
                    left join "Blogs" as b on b.id = p."blogId"
                    where c."bloggerId"=$1 
                    and uc."isBanned"=false
-                   group by c.id, c.content, c."createdAt", c."userId", uc.login
+                   group by c.id, c.content, c."createdAt", c."userId", uc.login, uc.id, p.id, b.name
                    ${paginationOptions}
                    `;
         const queryCount = `
@@ -58,7 +58,10 @@ export class CommentsSqlQueryRepository {
             content: model.content,
             commentatorInfo: model.commentatorInfo,
             createdAt: model.createdAt.toISOString(),
-            likesInfo: model.likesInfo,
+            likesInfo: {
+                ...model.likesInfo,
+                myStatus: model.likesInfo.myStatus[0] as LikeStatus
+            },
             postInfo: model.postInfo
         }
     }

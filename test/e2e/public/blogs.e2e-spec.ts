@@ -12,8 +12,11 @@ import {PostsViewModel} from "../../../src/types/posts";
 import {savePost} from "../../helpers/factories/posts.factory";
 import {correctPost} from "../../stubs/posts.stub";
 import {defaultExtendedLikesInfo} from "../../helpers/mocks/likesInfo.mock";
+import {randomUUID} from "crypto";
 
 describe('BlogsController (e2e)', () => {
+
+    const id = randomUUID()
 
     let nestAppTest: INestApplication;
     let instance: SuperTest<Test>;
@@ -62,7 +65,7 @@ describe('BlogsController (e2e)', () => {
     });
     describe(`2 GET ${BlogsPath}/id:`, () => {
         it('2.1 should return 404 for not existing blog', async () => {
-            await instance.get('/blogs/999').expect(HttpStatus.NOT_FOUND);
+            await instance.get(`${BlogsPath}/${id}`).expect(HttpStatus.NOT_FOUND);
         });
         it('2.2 should return 200 with blog', async () => {
             const user = createUser();
@@ -82,7 +85,7 @@ describe('BlogsController (e2e)', () => {
     });
     describe(`3 GET ${BlogsPath}/id/posts:`, () => {
         it(`3.1 should return 404 for not existing post by blog's id`, async () => {
-            await instance.get(BlogsPath + '/999/posts').expect(HttpStatus.NOT_FOUND);
+            await instance.get(BlogsPath + `/${id}/posts`).expect(HttpStatus.NOT_FOUND);
         });
         it(`3.2 should return 200 and empty post`, async () => {
             const user = createUser();

@@ -19,3 +19,7 @@ CREATE TABLE public."CommentsLike"
 
 ALTER TABLE IF EXISTS public."CommentsLike"
     OWNER to postgres;
+
+GRANT ALL ON TABLE public."CommentsLike" TO postgres;
+
+GRANT ALL ON TABLE public."CommentsLike" TO nest;

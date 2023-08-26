@@ -2,14 +2,16 @@ import {CommandHandler, ICommandHandler} from "@nestjs/cqrs";
 import {UpdateStatusLikeCommand} from "../command";
 import {CommentsSqlRepository} from "../../repository/commentsSql.repository";
 import {CommentsLikeSqlRepository} from "../../like/repository/commentsLikeSql.repository";
-import {NotFoundException} from "@nestjs/common";
+import {ForbiddenException, NotFoundException} from "@nestjs/common";
 import {LikeStatus} from "../../../../types/types";
+import {BlogsUsersBanSqlRepository} from "../../../../bloggers/users/repository/blogsUsersBanSql.repository";
 
 @CommandHandler(UpdateStatusLikeCommand)
 export class UpdateStatusLikeCommandHandler implements ICommandHandler<UpdateStatusLikeCommand> {
     constructor(
         private commentsSqlRepository: CommentsSqlRepository,
-        private commentsLikeSqlRepository: CommentsLikeSqlRepository
+        private commentsLikeSqlRepository: CommentsLikeSqlRepository,
+        private blogsUsersBanRepository: BlogsUsersBanSqlRepository,
     ) {}
 
     async execute(command: UpdateStatusLikeCommand): Promise<any> {
@@ -20,6 +22,9 @@ export class UpdateStatusLikeCommandHandler implements ICommandHandler<UpdateSta
         if (!comment) {
             throw new NotFoundException();
         }
+
+        const isBanned = await this.blogsUsersBanRepository.checkBannedUserByPostId(userId,comment.postId);
+        if(isBanned) throw new ForbiddenException()
 
         await Promise.all([
             this.updateStatus(userId,commentId,newStatus.likeStatus),

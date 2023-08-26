@@ -14,7 +14,7 @@ export class CommentsLikeSqlRepository {
         myStatus: LikeStatus,
     ): Promise<CommentsLikeSql> {
         const [data]: DataResponse<CommentsLikeSql> = await this.dataSource.query(
-            `insert into "CommentsLike" ("userId","commentId","myStatus") values ($1,$2,$3) returning *`,
+            `insert into "CommentsLike" ("userId","commentId","myStatus") values ($1,$2,$3) returning *;`,
             [userId,commentId,myStatus]
         )
         return data
@@ -25,7 +25,7 @@ export class CommentsLikeSqlRepository {
         commentId: string
     ): Promise<CommentsLikeSql> {
         const [data]: DataResponse<CommentsLikeSql> = await this.dataSource.query(
-            `select * from "CommentsLike" as cl where cl."userId"=$1 and cl."commentId"=$3`,
+            `select * from "CommentsLike" as cl where cl."userId"=$1 and cl."commentId"=$2`,
             [userId, commentId]
         )
         return data

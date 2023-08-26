@@ -1,15 +1,15 @@
 export const errorsMessageForIncorrectBlog = {
     errorsMessages: [
         {
-            message: 'should not be empty',
+            message: 'input is required',
             field: 'name'
         },
         {
-            message: 'should not be empty',
+            message: 'input is required',
             field: 'description'
         },
         {
-            message: 'should not be empty',
+            message: 'input is required',
             field: 'websiteUrl'
         }
     ]
@@ -18,15 +18,15 @@ export const errorsMessageForIncorrectBlog = {
 export const errorsMessageForIncorrectPost = {
     errorsMessages: [
         {
-            message: 'should not be empty',
+            message: 'input is required',
             field: 'title'
         },
         {
-            message: 'should not be empty',
+            message: 'input is required',
             field: 'shortDescription'
         },
         {
-            message: 'should not be empty',
+            message: 'input is required',
             field: 'content'
         }
     ]
@@ -35,15 +35,15 @@ export const errorsMessageForIncorrectPost = {
 export const errorsMessageForIncorrectPostWithBlogId = {
     errorsMessages: [
         {
-            message: 'should not be empty',
+            message: 'input is required',
             field: 'title'
         },
         {
-            message: 'should not be empty',
+            message: 'input is required',
             field: 'shortDescription'
         },
         {
-            message: 'should not be empty',
+            message: 'input is required',
             field: 'content'
         }
     ]
@@ -52,7 +52,7 @@ export const errorsMessageForIncorrectPostWithBlogId = {
 export const errorsMessageForIncorrectComment = {
     errorsMessages: [
         {
-            message: 'should not be empty',
+            message: 'content must be longer than or equal to 20 characters',
             field: 'content'
         }
     ]
@@ -61,7 +61,7 @@ export const errorsMessageForIncorrectComment = {
 export const errorsMessageForIncorrectPostLike = {
     errorsMessages: [
         {
-            message: 'should not be empty',
+            message: 'likeStatus must be one of the following values: None, Like, Dislike',
             field: 'likeStatus'
         }
     ]
@@ -70,7 +70,7 @@ export const errorsMessageForIncorrectPostLike = {
 export const errorsMessageForIncorrectCommentLike = {
     errorsMessages: [
         {
-            message: 'should not be empty',
+            message: 'input is required',
             field: 'likeStatus'
         }
     ]
@@ -79,15 +79,15 @@ export const errorsMessageForIncorrectCommentLike = {
 export const errorsMessageForIncorrectUser = {
     errorsMessages: [
         {
-            message: 'should not be empty',
+            message: 'login should not be empty',
             field: 'login'
         },
         {
-            message: 'should not be empty',
+            message: 'password should not be empty',
             field: 'password'
         },
         {
-            message: 'should not be empty',
+            message: 'email should not be empty',
             field: 'email'
         }
     ]
@@ -168,7 +168,7 @@ export const errorsMessageForNewPassword = {
 export const errorsMessageForBadBan = {
     errorsMessages: [
         {
-            message: 'must be longer than or equal to 20 characters',
+            message: 'banReason must be longer than or equal to 20 characters',
             field: 'banReason'
         }
     ]
@@ -177,13 +177,13 @@ export const errorsMessageForBadBan = {
 export const errorsMessageForBloggerBanUser = {
     errorsMessages: [
         {
-            message: 'should not be empty',
-            field: 'banReason'
+            message: 'blogId should not be empty',
+            field: 'blogId'
         },
         {
-            message: 'should not be empty',
-            field: 'blogId'
-        }
+            message: 'banReason must be longer than or equal to 20 characters',
+            field: 'banReason'
+        },
     ]
 };
 

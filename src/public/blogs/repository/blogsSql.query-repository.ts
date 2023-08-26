@@ -22,7 +22,7 @@ export class BlogsSqlQueryRepository {
         let filterOptions = `b."isBanned"=false and u."isBanned"=false and b.name ILIKE $1`;
 
         if(userId) {
-            filterOptions = filterOptions + ` and "b.userId"=${userId}`;
+            filterOptions = filterOptions + ` and b."userId"='${userId}'`;
         }
 
         const query = `
@@ -48,9 +48,9 @@ export class BlogsSqlQueryRepository {
 
     async findById(id: string): Promise<BlogsViewModel> {
         const query = `
-            select * from "Blogs" b 
+            select b.* from "Blogs" as b 
             inner join "Users" as u on u.id=b."userId"
-            where id=$1 and u."isBanned"=false or b."isBanned"=false
+            where b.id=$1 and u."isBanned"=false or b."isBanned"=false
         `;
         const [data] = await this.dataSource.query(query,[id])
         if (!data) {

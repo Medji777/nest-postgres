@@ -26,8 +26,8 @@ export class BanUserSqlCommandHandler implements ICommandHandler<BanUserCommand>
     }
 
     private async ban(userId: string, bodyDTO: BanInputDto): Promise<void> {
-        const res = await this.usersSqlRepository.updateBan(bodyDTO, userId)
-        if(!res) throw new NotFoundException()
+        const isUpdated = await this.usersSqlRepository.updateBan(bodyDTO, userId)
+        if(!isUpdated) throw new NotFoundException()
         await this.securitySqlRepository.deleteAllByUserId(userId)
     }
     private async updateLikesCountPosts(userId: string): Promise<void> {

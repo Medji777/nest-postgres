@@ -8,7 +8,7 @@ import {BlogsInputModelDTO} from "../dto";
 @Injectable()
 export class BlogsSqlRepository {
     constructor(@InjectDataSource() private dataSource: DataSource) {}
-    async create(name: string, description: string, websiteUrl: string, userId: string ): Promise<BlogsSqlType> {
+    async create(name: string, description: string, websiteUrl: string, userId: string): Promise<BlogsSqlType> {
         const query = `
             insert into "Blogs" (
                 id,name,description,"websiteUrl","createdAt",
@@ -38,11 +38,11 @@ export class BlogsSqlRepository {
     }
     async update(blogId: string, payload: BlogsInputModelDTO) {
         const res: UpdateResponse<BlogsSqlType> = await this.dataSource.query(
-            `update "Blogs" as b 
-                   set b.name = $1, 
-                   b.description = $2, 
-                   b."websiteUrl" = $3
-                   where b."blogId" = $4;`,
+            `update "Blogs"
+                   set name = $1, 
+                   description = $2, 
+                   "websiteUrl" = $3
+                   where id = $4`,
             [payload.name, payload.description, payload.websiteUrl, blogId]
         )
         return !!res[1]
