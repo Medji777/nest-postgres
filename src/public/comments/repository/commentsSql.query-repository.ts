@@ -17,17 +17,17 @@ export class CommentsSqlQueryRepository {
 
     async findById(id: string, userId?: string): Promise<CommentViewModel> {
         const query = `
+            with my_status_agg as (${this.getMyStatusAggV2(userId)})
             select c.id, c.content, 
             jsonb_build_object('userId',c."userId",'userLogin',u.login) as "commentatorInfo", 
             c."createdAt", 
-            jsonb_build_object('likesCount',c."likesCount",'dislikesCount',c."dislikesCount",'myStatus', 
-                ${this.getMyStatusAgg(userId)}
-            ) as "likesInfo"
-            from "Comments" as c 
-            left join "Users" as u on u.id = c."userId"
+            jsonb_build_object('likesCount',c."likesCount",'dislikesCount',c."dislikesCount") as "likesInfo",
+            (my_status_agg."myStatus") as "myStatus"
+            from my_status_agg, "Comments" as c 
+            inner join "Users" as u on u.id = c."userId"
             left join "CommentsLike" as cl on cl."commentId" = c.id
             where c.id = $1 and u."isBanned"=false
-            group by c.id, c.content, c."createdAt", c."userId", u.login;
+            group by c.id, c.content, c."createdAt", c."userId", u.login, my_status_agg."myStatus";
         `;
         const [data]: DataResponse<CommentSqlModel> = await this.dateSource.query(query,[id])
         if(!data) throw new NotFoundException()
@@ -46,17 +46,17 @@ export class CommentsSqlQueryRepository {
 
         const paginationOptions = this.paginationService.paginationOptions(queryDto)
         const query = `
+            with my_status_agg as (${this.getMyStatusAggV2(userId)})
             select c.id, c.content, 
             jsonb_build_object('userId',c."userId",'userLogin',u.login) as "commentatorInfo", 
             c."createdAt", 
-            jsonb_build_object('likesCount',c."likesCount",'dislikesCount',c."dislikesCount",'myStatus', 
-                ${this.getMyStatusAgg(userId)}
-            ) as "likesInfo"
-            from "Comments" as c 
+            jsonb_build_object('likesCount',c."likesCount",'dislikesCount',c."dislikesCount") as "likesInfo",
+            (my_status_agg."myStatus") as "myStatus"
+            from my_status_agg, "Comments" as c 
             left join "Users" as u on u.id = c."userId"
             left join "CommentsLike" as cl on cl."commentId" = c.id
             where c."postId" = $1 and u."isBanned"=false
-            group by c.id, c.content, c."createdAt", c."userId", u.login
+            group by c.id, c.content, c."createdAt", c."userId", u.login, my_status_agg."myStatus"
             ${paginationOptions}
         `;
         const queryCount = `
@@ -74,7 +74,7 @@ export class CommentsSqlQueryRepository {
         })
     }
 
-    private getCommentsSqlMapped(model: CommentSqlModel): CommentViewModel {
+    private getCommentsSqlMapped(model: CommentSqlModel & {myStatus?: LikeStatus}): CommentViewModel {
         return {
             id: model.id,
             content: model.content,
@@ -82,7 +82,7 @@ export class CommentsSqlQueryRepository {
             createdAt: model.createdAt.toISOString(),
             likesInfo: {
                 ...model.likesInfo,
-                myStatus: model.likesInfo.myStatus[0] as LikeStatus
+                myStatus: model.myStatus
             }
         }
     }
@@ -91,5 +91,15 @@ export class CommentsSqlQueryRepository {
             return `jsonb_agg(case when cl."userId"='${userId}' then cl."myStatus" else 'None' end)`
         }
         return `jsonb_build_array('None')`
+    }
+
+    private getMyStatusAggV2(userId: string): string {
+        if(userId) {
+            return `select cl."myStatus" from "CommentsLike" as cl
+		            inner join "Comments" as c on c.id = cl."commentId"
+		            inner join "Users" as u on u.id = cl."userId"
+		            where u.id = '${userId}' and u."isBanned"=false`
+        }
+        return `select 'None' as "myStatus"`
     }
 }

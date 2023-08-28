@@ -43,12 +43,13 @@ export class UpdateStatusLikeCommandHandler implements ICommandHandler<UpdateSta
            )
         } else {
             await this.commentsLikeSqlRepository.updateStatus(
+                userId,
                 commentId,
                 likeStatus
             )
         }
     }
     private async updateCountLikes(userId: string, commentId: string): Promise<void> {
-        await this.commentsSqlRepository.updateCountLikesByComment(commentId, userId)
+        await this.commentsSqlRepository.updateCountLikesByComment(commentId)
     }
 }

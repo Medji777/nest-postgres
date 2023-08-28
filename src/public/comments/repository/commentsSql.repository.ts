@@ -63,24 +63,24 @@ export class CommentsSqlRepository {
         return !!res[1]
     }
 
-    async updateCountLikesByComment(commentId: string, userId: string): Promise<boolean> {
+    async updateCountLikesByComment(commentId: string,): Promise<boolean> {
         const query = `
             with likes_agg as (
                 select count(case when cl."myStatus" = 'Like' and u."isBanned"=false then 1 else NULL end) as "likesCount",
                 count(case when cl."myStatus" = 'Dislike' and u."isBanned"=false then 1 else NULL end) as "dislikesCount"
                 from "Comments" as c
-                left join "CommentsLike" cl on cl."userId"=$1
-                left join "Users" u on u.id = $1
-                where c.id = cl."commentId" 
+                left join "CommentsLike" cl on cl."commentId"=c.id
+                left join "Users" u on u.id = cl."userId"
+                where c.id = $1
             )
             update "Comments" as c
             set "likesCount"= likes_agg."likesCount", 
             "dislikesCount"= likes_agg."dislikesCount"
             from "CommentsLike" as cl, "Users" as u, likes_agg
             where 
-            cl."userId" = $1 and u.id = $1 and c.id=$2 and c.id = cl."commentId" and u."isBanned"=false
+            u.id = cl."userId" and c.id = $1 and c.id = cl."commentId" and u."isBanned"=false
         `;
-        const res: UpdateResponse<CommentsSqlType> = await this.dataSource.query(query, [userId, commentId])
+        const res: UpdateResponse<CommentsSqlType> = await this.dataSource.query(query, [commentId])
         return !!res[1]
     }
 
