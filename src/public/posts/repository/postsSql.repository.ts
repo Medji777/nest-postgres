@@ -83,27 +83,27 @@ export class PostsSqlRepository {
         return !!res[1]
     }
 
-    async updateCountLikesInPost(postId: string, userId: string): Promise<boolean> {
+    async updateCountLikesInPost(postId: string): Promise<boolean> {
         const res = await this.dataSource.query(`
             with like_agg as (
                 select count(case when pl."myStatus" = 'Like' and u."isBanned"=false then 1 else NULL end) as "likesCount",
                 count(case when pl."myStatus" = 'Dislike' and u."isBanned"=false then 1 else NULL end) as "dislikesCount"
                 from "Posts" as p
-                left join "PostsLike" pl on pl."userId"=$1
-                left join "Users" u on u.id = $1
-                where p.id = pl."postId" and p.id = $2
+                left join "PostsLike" pl on p.id = pl."postId"
+                left join "Users" u on u.id = pl."userId"
+                where p.id = $1
             )
             update "Posts" as p 
             set "likesCount"= like_agg."likesCount", 
             "dislikesCount"= like_agg."dislikesCount"
             from "PostsLike" as pl, "Users" as u, "Blogs" as b, like_agg 
-            where pl."userId" = $1 
-            and p.id = $2 
+            where pl."userId" = u.id
+            and p.id = $1 
             and p.id = pl."postId"
             and p."blogId" = b.id
             and u."isBanned"=false
             and b."isBanned"=false  
-        `,[userId,postId])
+        `,[postId])
         return !!res[1]
     }
 

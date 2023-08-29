@@ -1,8 +1,6 @@
 import {CommandHandler, ICommandHandler} from "@nestjs/cqrs";
 import {ForbiddenException, NotFoundException} from "@nestjs/common";
 import {UpdateStatusLikeCommand} from "../command";
-// import {LikeCalculateService} from "../../../../applications/likeCalculate.service";
-// import {LikeStatus} from "../../../../types/types";
 import {PostsSqlRepository} from "../../repository/postsSql.repository";
 import {PostsLikeSqlRepository} from "../../like/repository/postsLikeSql.repository";
 import {BlogsUsersBanSqlRepository} from "../../../../bloggers/users/repository/blogsUsersBanSql.repository";
@@ -14,12 +12,10 @@ export class UpdateStatusLikeCommandHandler implements ICommandHandler<UpdateSta
         private postsSqlRepository: PostsSqlRepository,
         private postsLikeSqlRepository: PostsLikeSqlRepository,
         private blogsUsersBanRepository: BlogsUsersBanSqlRepository,
-       // private likeCalculateService: LikeCalculateService,
     ) {}
     async execute(command: UpdateStatusLikeCommand): Promise<void> {
         const {userId, postId, bodyDTO: newStatus} = command;
 
-        //let lastStatus: LikeStatus = LikeStatus.None;
         const post = await this.postsSqlRepository.findById(postId)
         if (!post) throw new NotFoundException();
 
@@ -28,20 +24,8 @@ export class UpdateStatusLikeCommandHandler implements ICommandHandler<UpdateSta
 
         await Promise.all([
             this.updateStatus(userId,postId,newStatus.likeStatus),
-            this.updateCountLikes(userId,postId)
+            this.updateCountLikes(postId)
         ])
-
-        //await this.updateStatus(userId,postId,newStatus.likeStatus)
-        // const newLikesInfo = this.likeCalculateService.getUpdatedLike(
-        //     {
-        //         likesCount: post.likesCount,
-        //         dislikesCount: post.dislikesCount,
-        //     },
-        //     lastStatus,
-        //     newStatus.likeStatus,
-        // );
-        // await this.postsSqlRepository.updateCountLikesInPost(post.id,newLikesInfo)
-        //await this.postsSqlRepository.updateCountLikesInPost1(post.id,userId)
     }
 
     private async updateStatus(userId: string, postId: string, likeStatus: LikeStatus): Promise<void> {
@@ -54,7 +38,6 @@ export class UpdateStatusLikeCommandHandler implements ICommandHandler<UpdateSta
                 likeStatus,
             )
         } else {
-            //lastStatus = likeInfo.myStatus;
             await this.postsLikeSqlRepository.updateStatus(
                 userId,
                 postId,
@@ -62,7 +45,7 @@ export class UpdateStatusLikeCommandHandler implements ICommandHandler<UpdateSta
             )
         }
     }
-    private async updateCountLikes(userId: string, postId: string): Promise<void> {
-        await this.postsSqlRepository.updateCountLikesInPost(postId,userId)
+    private async updateCountLikes(postId: string): Promise<void> {
+        await this.postsSqlRepository.updateCountLikesInPost(postId)
     }
 }
