@@ -20,7 +20,6 @@ export class PostsSqlQueryRepository {
         const paginateOptions = this.paginationService.paginationOptions(queryDTO)
 
         const query = `
-            with my_status_agg as (${this.getMyStatusAggV2(userId)})
             select p.id, 
                 p.title, 
                 p."shortDescription", 
@@ -30,7 +29,7 @@ export class PostsSqlQueryRepository {
                 p."createdAt",
                 p."likesCount",
                 p."dislikesCount",
-                my_status_agg."myStatus",
+                ${this.getUserStatus(userId)}
                 
                 array_to_json(ARRAY(
                          select (u.login, u.id, pl2."addedAt")
@@ -41,7 +40,7 @@ export class PostsSqlQueryRepository {
                          limit 3
                 )) AS "lastLikesUser"
                  
-                from my_status_agg, "Posts" as p 
+                from "Posts" as p 
                 
                 left join "PostsLike" as pl on p.id = pl."postId"
                 left join "Blogs" as b on p."blogId" = b.id
@@ -56,8 +55,8 @@ export class PostsSqlQueryRepository {
                          p.content,
                          p."blogId",
                          p."createdAt",
-                         b.name,
-                         my_status_agg."myStatus"
+                         b.name
+                        
                 ${paginateOptions}
         `;
 
@@ -82,7 +81,6 @@ export class PostsSqlQueryRepository {
 
     async findById(id: string, userId?: string): Promise<PostsViewModel>  {
         const query = `
-            with my_status_agg as (${this.getMyStatusAggV2(userId)})
             select p.id, 
                 p.title, 
                 p."shortDescription", 
@@ -92,7 +90,8 @@ export class PostsSqlQueryRepository {
                 p."createdAt",
                 p."likesCount",
                 p."dislikesCount",
-                my_status_agg."myStatus",
+              
+                ${this.getUserStatus(userId)}
                 
                 array_to_json(ARRAY(
                          select (u.login, u.id, pl2."addedAt")
@@ -103,7 +102,7 @@ export class PostsSqlQueryRepository {
                          limit 3
                 )) AS "lastLikesUser"
                  
-                from my_status_agg, "Posts" as p 
+                from "Posts" as p 
                 
                 left join "PostsLike" as pl on p.id=pl."postId"
                 left join "Blogs" as b on p."blogId"=b.id
@@ -118,8 +117,8 @@ export class PostsSqlQueryRepository {
                          p.content,
                          p."blogId",
                          p."createdAt",
-                         b.name,
-                         my_status_agg."myStatus"
+                         b.name
+                        
         `;
         const [data]: DataResponse<PostsSqlFilterType> = await this.dataSource.query(query,[id])
         if(!data) throw new NotFoundException()
@@ -133,7 +132,6 @@ export class PostsSqlQueryRepository {
     ): Promise<Paginator<PostsViewModel>> {
         const paginateOptions = this.paginationService.paginationOptions(queryDTO)
         const query = `
-            with my_status_agg as (${this.getMyStatusAggV2(userId)})
             select p.id, 
                 p.title, 
                 p."shortDescription", 
@@ -143,7 +141,7 @@ export class PostsSqlQueryRepository {
                 p."createdAt",
                 p."likesCount",
                 p."dislikesCount",
-                my_status_agg."myStatus",
+                ${this.getUserStatus(userId)}
                 
                 array_to_json(ARRAY(
                          select (u.login, u.id, pl2."addedAt")
@@ -154,7 +152,7 @@ export class PostsSqlQueryRepository {
                          limit 3
                 )) AS "lastLikesUser"
                 
-                from my_status_agg, "Posts" as p
+                from "Posts" as p
                 
                 left join "PostsLike" as pl on p.id = pl."postId"
                 left join "Blogs" as b on p."blogId" = b.id
@@ -169,8 +167,8 @@ export class PostsSqlQueryRepository {
                          p.content,
                          p."blogId",
                          p."createdAt",
-                         b.name,
-                         my_status_agg."myStatus"
+                         b.name
+                        
                 ${paginateOptions}
         `;
         const queryCount = `
@@ -192,6 +190,12 @@ export class PostsSqlQueryRepository {
     }
 
     private getOutputPostSqlMapped(post: PostsSqlFilterType): PostsViewModel {
+        const myStatus = post.likeStatus
+            ? LikeStatus.Like
+            : post.dislikeStatus
+                ? LikeStatus.Dislike
+                : LikeStatus.None;
+
         const newestLikes: Array<LikesPostsExtendedViewModel> = post.lastLikesUser.map((u: any)=>({
             login: u.f1,
             userId: u.f2.toString(),
@@ -208,7 +212,7 @@ export class PostsSqlQueryRepository {
             extendedLikesInfo: {
                 likesCount: post.likesCount,
                 dislikesCount: post.dislikesCount,
-                myStatus: post.myStatus,
+                myStatus: myStatus,
                 newestLikes: newestLikes,
             },
         };
@@ -217,16 +221,33 @@ export class PostsSqlQueryRepository {
         if(userId) {
             return `(case when pl."userId"='${userId}' then pl."myStatus" else '${LikeStatus.None}' end) as "myStatus",`
         }
-        return `('${LikeStatus.None}') as "myStatus",`
+        return ``
     }
 
-    private getMyStatusAggV2(userId: string): string {
+    private getMyStatusAggV2(userId: string, filter: string = ''): string {
         if(userId) {
-            return `select pl."myStatus" from "PostsLike" as pl
+            return `select pl."postId", pl."myStatus" from "PostsLike" as pl
                     inner join "Posts" as p on p.id = pl."postId"
                     inner join "Users" as u on u.id = pl."userId"
-                    where u.id = '${userId}' and u."isBanned"=false`
+                    where u.id = '${userId}' ${filter} and u."isBanned"=false
+                    group by pl."postId", pl."myStatus"
+            `
         }
         return `select '${LikeStatus.None}' as "myStatus"`
+    }
+
+    private getUserStatus(userId: string): string {
+        if (userId) {
+            return `
+            COUNT(CASE 
+                    WHEN pl."userId" = '${userId}' AND pl."myStatus" = '${LikeStatus.Like}' 
+                        THEN 1 ELSE NULL 
+                    END )::int AS "likeStatus",
+            COUNT(CASE 
+                    WHEN pl."userId" = '${userId}' AND pl."myStatus" = '${LikeStatus.Dislike}' 
+                        THEN 1 ELSE NULL 
+                    END )::int AS "dislikeStatus",`;
+        }
+        return '';
     }
 }

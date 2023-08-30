@@ -1,5 +1,4 @@
 import {LikesPostsExtendedViewModel} from "../likes";
-import {LikeStatus} from "../types";
 
 export type PostsSqlType = {
     id: string,
@@ -15,6 +14,7 @@ export type PostsSqlType = {
 
 export type PostsSqlFilterType = PostsSqlType & {
     blogName: string,
-    myStatus: LikeStatus,
+    likeStatus: number,
+    dislikeStatus: number,
     lastLikesUser: Array<LikesPostsExtendedViewModel>
 }

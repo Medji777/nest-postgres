@@ -31,9 +31,11 @@ export class BanUserSqlCommandHandler implements ICommandHandler<BanUserCommand>
         await this.securitySqlRepository.deleteAllByUserId(userId)
     }
     private async updateLikesCountPosts(): Promise<void> {
-        await this.postsSqlRepository.updateCountLikes()
+        const isUpdated = await this.postsSqlRepository.updateCountLikes()
+        if(!isUpdated) throw new NotFoundException()
     }
     private async updateLikesCountComments(): Promise<void> {
-        await this.commentsSqlRepository.updateCountLikes()
+        const isUpdated = await this.commentsSqlRepository.updateCountLikes()
+        if(!isUpdated) throw new NotFoundException()
     }
 }
