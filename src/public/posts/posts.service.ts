@@ -24,9 +24,6 @@ export class PostsService {
     )
     return this._likeCreateTransform(this._mappedPostModel({...createPost, blogName: payload.blogName}));
   }
-  async deleteAll(): Promise<void> {
-    await this.postsSqlRepository.deleteAll();
-  }
   private _likeCreateTransform(post: PostsDBModel): PostsViewModel {
     return {
       ...post,

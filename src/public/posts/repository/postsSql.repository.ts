@@ -3,7 +3,6 @@ import {DataSource} from "typeorm";
 import {Injectable} from "@nestjs/common";
 import {PostsSqlType} from "../../../types/sql/posts.sql";
 import {DataResponse, DeleteResponse, UpdateResponse} from "../../../types/sql/types";
-import {LikeInfoModel} from "../../../types/likes";
 import {PostInputModel} from "../../../types/posts";
 
 @Injectable()
@@ -50,60 +49,15 @@ export class PostsSqlRepository {
         return !!res[1]
     }
 
-    async updateCountLikes(userId: string): Promise<boolean> {
-        const query = `
-            with likes_agg as (
-                select count(case when pl."myStatus" = 'Like' and u."isBanned"=false then 1 else NULL end) as "likesCount",
-                count(case when pl."myStatus" = 'Dislike' and u."isBanned"=false then 1 else NULL end) as "dislikesCount"
-                from "Posts" as p
-                left join "PostsLike" pl on pl."userId"=$1
-                left join "Users" u on u.id = pl."userId"
-                where p.id = pl."postId" 
-            )
-            update "Posts" as p
-            set "likesCount"= likes_agg."likesCount", 
-            "dislikesCount"= likes_agg."dislikesCount"
-            from "PostsLike" as pl, "Users" as u, "Blogs" as b, likes_agg
-            where pl."userId"= $1
-            and u.id = pl."userId"
-            and p.id = pl."postId"
-            and p."blogId" = b.id
-            and b."isBanned"=false    
-        `;
-        const res: UpdateResponse<PostsSqlType> = await this.dataSource.query(query,[userId])
-        return !!res[1]
-    }
-
-    async updateCountLikesInPosts(postId: string, likeInfo: LikeInfoModel): Promise<boolean> {
-        const res = await this.dataSource.query(`
-            update "Posts" as p 
-            set "likesCount"= $2, "dislikesCount"= $3
-            where p.id = $1
-        `,[postId,likeInfo.likesCount,likeInfo.dislikesCount])
+    async updateCountLikes(): Promise<boolean> {
+        const query = this.queryUpdateCountLikes();
+        const res: UpdateResponse<PostsSqlType> = await this.dataSource.query(query)
         return !!res[1]
     }
 
     async updateCountLikesInPost(postId: string): Promise<boolean> {
-        const res = await this.dataSource.query(`
-            with like_agg as (
-                select count(case when pl."myStatus" = 'Like' and u."isBanned"=false then 1 else NULL end) as "likesCount",
-                count(case when pl."myStatus" = 'Dislike' and u."isBanned"=false then 1 else NULL end) as "dislikesCount"
-                from "Posts" as p
-                left join "PostsLike" pl on p.id = pl."postId"
-                left join "Users" u on u.id = pl."userId"
-                where p.id = $1
-            )
-            update "Posts" as p 
-            set "likesCount"= like_agg."likesCount", 
-            "dislikesCount"= like_agg."dislikesCount"
-            from "PostsLike" as pl, "Users" as u, "Blogs" as b, like_agg 
-            where pl."userId" = u.id
-            and p.id = $1 
-            and p.id = pl."postId"
-            and p."blogId" = b.id
-            and u."isBanned"=false
-            and b."isBanned"=false  
-        `,[postId])
+        const query = this.queryUpdateCountLikes(postId)
+        const res: UpdateResponse<PostsSqlType> = await this.dataSource.query(query,[postId])
         return !!res[1]
     }
 
@@ -114,7 +68,29 @@ export class PostsSqlRepository {
         return !!res[1]
     }
 
-    async deleteAll(): Promise<void> {
-        await this.dataSource.query(`TRUNCATE "Posts" CASCADE`);
+    private queryUpdateCountLikes(postId?: string): string {
+        const filter = postId ? 'and p.id = $1' : ''
+        return `
+            with like_agg as (
+                select p.id as "postId",
+                count(case when pl."myStatus" = 'Like' and u."isBanned"=false then 1 else NULL end) as "likesCount",
+                count(case when pl."myStatus" = 'Dislike' and u."isBanned"=false then 1 else NULL end) as "dislikesCount"
+                from "Posts" as p
+                left join "PostsLike" pl on p.id = pl."postId"
+                left join "Users" u on u.id = pl."userId"
+                where p.id = pl."postId" ${filter}
+                group by p.id
+            )
+            update "Posts" as p 
+            set "likesCount"= like_agg."likesCount", 
+            "dislikesCount"= like_agg."dislikesCount"
+            from "Users" as u, "Blogs" as b, like_agg 
+            where p.id = like_agg."postId"
+            ${filter}
+            and p."blogId" = b.id
+            and b."userId" = u.id
+            and u."isBanned"=false
+            and b."isBanned"=false  
+        `
     }
 }

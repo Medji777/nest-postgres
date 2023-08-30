@@ -20,8 +20,8 @@ export class BanUserSqlCommandHandler implements ICommandHandler<BanUserCommand>
         const {userId, bodyDTO} = command;
         await Promise.all([
             this.ban(userId, bodyDTO),
-            this.updateLikesCountPosts(userId),
-            this.updateLikesCountComments(userId)
+            this.updateLikesCountPosts(),
+            this.updateLikesCountComments()
         ])
     }
 
@@ -30,10 +30,10 @@ export class BanUserSqlCommandHandler implements ICommandHandler<BanUserCommand>
         if(!isUpdated) throw new NotFoundException()
         await this.securitySqlRepository.deleteAllByUserId(userId)
     }
-    private async updateLikesCountPosts(userId: string): Promise<void> {
-        await this.postsSqlRepository.updateCountLikes(userId)
+    private async updateLikesCountPosts(): Promise<void> {
+        await this.postsSqlRepository.updateCountLikes()
     }
-    private async updateLikesCountComments(userId: string): Promise<void> {
-        await this.commentsSqlRepository.updateCountLikes(userId)
+    private async updateLikesCountComments(): Promise<void> {
+        await this.commentsSqlRepository.updateCountLikes()
     }
 }
