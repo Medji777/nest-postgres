@@ -50,7 +50,7 @@ export class BlogsSqlQueryRepository {
         const query = `
             select b.* from "Blogs" as b 
             inner join "Users" as u on u.id=b."userId"
-            where b.id=$1 and u."isBanned"=false or b."isBanned"=false
+            where b."isBanned"=false and u."isBanned"=false and b.id=$1
         `;
         const [data]: DataResponse<BlogsSqlType> = await this.dataSource.query(query,[id])
         if (!data) {

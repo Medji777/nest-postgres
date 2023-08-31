@@ -62,7 +62,7 @@ export class BlogsSqlRepository {
         return !!res[1]
     }
     async updateBan(blogId: string, isBanned: boolean): Promise<boolean> {
-        const banDate = !isBanned ? 'Null' : 'now()'
+        const banDate = !isBanned ? 'NULL' : 'now()'
         const res: UpdateResponse<BlogsSqlType> = await this.dataSource.query(
             `update "Blogs" set "banDate"=${banDate}, "isBanned" = $2 where id = $1`,
             [blogId,isBanned]

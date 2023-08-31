@@ -68,7 +68,7 @@ export class UsersSqlQueryRepository {
     }
     private getBanStatus(banStatus: BanStatus): string {
         if(banStatus !== BanStatus.all){
-            return `"isBanned"=${banStatus} AND`
+            return `"isBanned"=${(banStatus === BanStatus.banned)} and`
         }
         return ``
     }
