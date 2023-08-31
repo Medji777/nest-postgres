@@ -4,7 +4,6 @@ import { CqrsModule } from "@nestjs/cqrs";
 import { CommentsController } from './comments.controller';
 import { JwtAccessStrategy } from '../auth/strategies/jwt-access.strategy';
 import { CommentsLikeModule } from './like/commentsLike.module';
-import { LikeCalculateService } from '../../applications/likeCalculate.service';
 import { UsersModule } from '../../users/users.module';
 import { PaginationService } from '../../applications/pagination.service';
 import { JwtService } from '../../applications/jwt.service';
@@ -22,7 +21,7 @@ import {BlogsUsersBanSqlRepository} from "../../bloggers/users/repository/blogsU
 const CommandHandlers = [UpdateContentCommandHandler, DeleteCommentCommandHandler, UpdateStatusLikeCommandHandler];
 const Repositories = [CommentsSqlRepository,CommentsSqlQueryRepository,CommentsLikeSqlRepository,BlogsUsersBanSqlRepository];
 const Strategy = [JwtAccessStrategy];
-const Services = [LikeCalculateService,PaginationService,JwtService]
+const Services = [PaginationService,JwtService]
 
 @Module({
   imports: [

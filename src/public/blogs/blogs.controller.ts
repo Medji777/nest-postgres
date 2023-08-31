@@ -43,7 +43,6 @@ export class BlogsController {
     @Query() query: QueryPostsDto,
     @User() user: UsersSqlType,
   ) {
-    await this.blogsSqlQueryRepository.findById(id);
     return this.postsSqlQueryRepository.getPostsByBlogId(id, query, user?.id);
   }
 }

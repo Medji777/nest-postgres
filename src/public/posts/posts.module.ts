@@ -7,7 +7,6 @@ import { BlogsModule } from '../blogs/blogs.module';
 import { CommentsModule } from '../comments/comments.module';
 import { JwtAccessStrategy } from '../auth/strategies/jwt-access.strategy';
 import { PostsLikeModule } from './like/postsLike.module';
-import { LikeCalculateService } from '../../applications/likeCalculate.service';
 import { UsersModule } from '../../users/users.module';
 import { JwtService } from '../../applications/jwt.service';
 import { PaginationService } from '../../applications/pagination.service';
@@ -36,7 +35,6 @@ const commandHandlers = [UpdateStatusLikeCommandHandler, CreateCommentByPostComm
     BlogsUsersBanSqlRepository,
     CommentsSqlRepository,
     JwtAccessStrategy,
-    LikeCalculateService,
     JwtService,
     PaginationService,
     CheckBlogIdValidate,

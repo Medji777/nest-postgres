@@ -31,6 +31,13 @@ export class BlogsSqlRepository {
         const res: DeleteResponse<BlogsSqlType> = await this.dataSource.query(query,[id]);
         return !!res[1]
     }
+    async checkExistBlogById(blogId: string): Promise<boolean> {
+        const [data]: DataResponse<BlogsSqlType> = await this.dataSource.query(
+            `select b.id from "Blogs" as b where b.id=$1`,
+            [blogId]
+        )
+        return !!data
+    }
     async checkIncludeUser(userId: string): Promise<boolean> {
         const query = 'select count(*) from "Blogs" where "usersId"=$1'
         const [data] = await this.dataSource.query(query,[userId])

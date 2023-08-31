@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from '../users/users.module';
@@ -29,7 +28,6 @@ const BloggerModule = [BloggerBlogModule, BloggerUsersModule]
 @Module({
   imports: [
     settings.START_MODULE,
-    MongooseModule.forRoot(settings.mongoURI),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: settings.PG_HOST,

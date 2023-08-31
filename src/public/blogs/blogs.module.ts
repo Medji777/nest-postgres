@@ -21,6 +21,6 @@ import { BlogsSqlRepository } from "./repository/blogsSql.repository";
     PaginationService,
     JwtService,
   ],
-  exports: [BlogsService],
+  exports: [BlogsSqlRepository, BlogsService],
 })
 export class BlogsModule {}

@@ -6,7 +6,7 @@ import {QueryBlogsDTO} from "../dto";
 import {Paginator} from "../../../types/types";
 import {BlogsViewModel} from "../../../types/blogs";
 import {BlogsSqlType} from "../../../types/sql/blogs.sql";
-import {ArrayDataResponse} from "../../../types/sql/types";
+import {ArrayDataResponse, DataResponse} from "../../../types/sql/types";
 
 @Injectable()
 export class BlogsSqlQueryRepository {
@@ -52,7 +52,7 @@ export class BlogsSqlQueryRepository {
             inner join "Users" as u on u.id=b."userId"
             where b.id=$1 and u."isBanned"=false or b."isBanned"=false
         `;
-        const [data] = await this.dataSource.query(query,[id])
+        const [data]: DataResponse<BlogsSqlType> = await this.dataSource.query(query,[id])
         if (!data) {
             throw new NotFoundException('blog not found');
         }

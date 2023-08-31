@@ -8,11 +8,13 @@ import {PaginationService} from "../../../applications/pagination.service";
 import {ArrayDataResponse, DataResponse, ResponseDataCount} from "../../../types/sql/types";
 import {PostsSqlFilterType} from "../../../types/sql/posts.sql";
 import {LikesPostsExtendedViewModel} from "../../../types/likes";
+import {BlogsSqlRepository} from "../../blogs/repository/blogsSql.repository";
 
 @Injectable()
 export class PostsSqlQueryRepository {
     constructor(
         @InjectDataSource() private dataSource: DataSource,
+        private blogsSqlRepository: BlogsSqlRepository,
         private paginationService: PaginationService
     ) {}
     async getAll(queryDTO: QueryPostsDto, userId?: string): Promise<Paginator<PostsViewModel>> {
@@ -130,6 +132,12 @@ export class PostsSqlQueryRepository {
         queryDTO: QueryPostsDto,
         userId?: string
     ): Promise<Paginator<PostsViewModel>> {
+
+        const isExist = await this.blogsSqlRepository.checkExistBlogById(blogId)
+        if(!isExist){
+            throw new NotFoundException()
+        }
+
         const paginateOptions = this.paginationService.paginationOptions(queryDTO)
         const query = `
             select p.id, 

@@ -10,7 +10,6 @@ import {
 import {PassHashService} from "../../applications/passHash.service";
 import {PaginationService} from "../../applications/pagination.service";
 import {BasicStrategy} from "../../public/auth/strategies/basic.strategy";
-import {LikeCalculateService} from "../../applications/likeCalculate.service";
 import {UsersSqlQueryRepository} from "../../users/repository/users-sql.query-repository";
 import {UsersSqlRepository} from "../../users/repository/users-sql.repository";
 import {SecuritySqlRepository} from "../../public/security/repository/securitySql.repository";
@@ -38,7 +37,6 @@ const Repository = [
     providers: [
         PaginationService,
         PassHashService,
-        LikeCalculateService,
         UsersService,
         BasicStrategy,
         ...Repository,
