@@ -18,8 +18,8 @@ export class BanUserSqlCommandHandler implements ICommandHandler<BanUserCommand>
 
     async execute(command: BanUserCommand): Promise<void> {
         const {userId, bodyDTO} = command;
+        await this.ban(userId, bodyDTO)
         await Promise.all([
-            this.ban(userId, bodyDTO),
             this.updateLikesCountPosts(),
             this.updateLikesCountComments()
         ])

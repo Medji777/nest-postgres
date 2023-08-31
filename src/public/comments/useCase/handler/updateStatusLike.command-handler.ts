@@ -26,10 +26,8 @@ export class UpdateStatusLikeCommandHandler implements ICommandHandler<UpdateSta
         const isBanned = await this.blogsUsersBanRepository.checkBannedUserByPostId(userId,comment.postId);
         if(isBanned) throw new ForbiddenException()
 
-        await Promise.all([
-            this.updateStatus(userId,commentId,newStatus.likeStatus),
-            this.updateCountLikes(commentId)
-        ])
+        await this.updateStatus(userId,commentId,newStatus.likeStatus)
+        await this.updateCountLikes(commentId)
     }
 
     private async updateStatus(userId: string, commentId: string, likeStatus: LikeStatus): Promise<void> {
