@@ -91,11 +91,11 @@ export class CommentsSqlQueryRepository {
         if (userId) {
             return `
               count(case 
-                    when cl."userId"='${userId} and cl."myStatus"='${LikeStatus.Like}' 
+                    when cl."userId"='${userId}' and cl."myStatus"='${LikeStatus.Like}' 
                         then 1 else NULL 
                     end )::int as "likeStatus",
               count(case 
-                    when cl."userId"='${userId} and cl."myStatus"='${LikeStatus.Dislike}' 
+                    when cl."userId"='${userId}' and cl."myStatus"='${LikeStatus.Dislike}' 
                         then 1 else NULL 
                     end )::int as "dislikeStatus",`;
         }
