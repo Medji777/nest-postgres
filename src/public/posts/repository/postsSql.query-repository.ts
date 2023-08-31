@@ -190,11 +190,7 @@ export class PostsSqlQueryRepository {
     }
 
     private getOutputPostSqlMapped(post: PostsSqlFilterType): PostsViewModel {
-        const myStatus = post.likeStatus
-            ? LikeStatus.Like
-            : post.dislikeStatus
-                ? LikeStatus.Dislike
-                : LikeStatus.None;
+        const myStatus = post.likeStatus ? LikeStatus.Like : post.dislikeStatus ? LikeStatus.Dislike : LikeStatus.None;
 
         const newestLikes: Array<LikesPostsExtendedViewModel> = post.lastLikesUser.map((u: any)=>({
             login: u.f1,
@@ -217,36 +213,18 @@ export class PostsSqlQueryRepository {
             },
         };
     }
-    private getMyStatus(userId: string): string {
-        if(userId) {
-            return `(case when pl."userId"='${userId}' then pl."myStatus" else '${LikeStatus.None}' end) as "myStatus",`
-        }
-        return ``
-    }
-
-    private getMyStatusAggV2(userId: string, filter: string = ''): string {
-        if(userId) {
-            return `select pl."postId", pl."myStatus" from "PostsLike" as pl
-                    inner join "Posts" as p on p.id = pl."postId"
-                    inner join "Users" as u on u.id = pl."userId"
-                    where u.id = '${userId}' ${filter} and u."isBanned"=false
-                    group by pl."postId", pl."myStatus"
-            `
-        }
-        return `select '${LikeStatus.None}' as "myStatus"`
-    }
 
     private getUserStatus(userId: string): string {
         if (userId) {
             return `
-            COUNT(CASE 
-                    WHEN pl."userId" = '${userId}' AND pl."myStatus" = '${LikeStatus.Like}' 
-                        THEN 1 ELSE NULL 
-                    END )::int AS "likeStatus",
-            COUNT(CASE 
-                    WHEN pl."userId" = '${userId}' AND pl."myStatus" = '${LikeStatus.Dislike}' 
-                        THEN 1 ELSE NULL 
-                    END )::int AS "dislikeStatus",`;
+            count(case 
+                    when pl."userId" = '${userId}' and pl."myStatus" = '${LikeStatus.Like}' 
+                        then 1 else NULL 
+                    end )::int as "likeStatus",
+            count(case 
+                    when pl."userId" = '${userId}' and pl."myStatus" = '${LikeStatus.Dislike}' 
+                        then 1 else NULL 
+                    end )::int as "dislikeStatus",`;
         }
         return '';
     }
