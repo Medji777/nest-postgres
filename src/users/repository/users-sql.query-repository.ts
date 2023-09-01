@@ -20,7 +20,7 @@ export class UsersSqlQueryRepository {
         const paginateOptions = this.paginationService.paginationOptions(restQuery);
         const filterOptions = `${banFilter} (login ILIKE $1 or email ILIKE $2)`;
         const query = `select * from "Users" where ${filterOptions} ${paginateOptions};`;
-        const queryCount = `select count(*) from "Users" where ${filterOptions};`;
+        const queryCount = `select count(u.id) from "Users" as u where ${filterOptions};`;
 
         const dataArray = await this.dataSource.query(query, [`%${searchLoginTerm}%`, `%${searchEmailTerm}%`]);
         const [data] = await this.dataSource.query(queryCount,[`%${searchLoginTerm}%`, `%${searchEmailTerm}%`]);

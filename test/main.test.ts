@@ -1,10 +1,7 @@
 import {Test, TestingModule} from "@nestjs/testing";
-import {useContainer} from "class-validator";
-import {INestApplication, ValidationPipe} from "@nestjs/common";
-import cookieParser from "cookie-parser";
+import {INestApplication} from "@nestjs/common";
 import {AppModule} from "../src/app/app.module";
-import {HttpExceptionFilter} from "../src/utils/filters/httpException.filter";
-import {ValidationPipeConfig} from "../src/utils/pipes/validationConfig.pipe";
+import {appSettings} from "../src/app/app.settings";
 
 export async function createNestAppTest(): Promise<INestApplication> {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -12,9 +9,6 @@ export async function createNestAppTest(): Promise<INestApplication> {
     }).compile();
 
     const app = moduleFixture.createNestApplication();
-    useContainer(app.select(AppModule), { fallbackOnErrors: true });
-    app.use(cookieParser());
-    app.useGlobalPipes(new ValidationPipe(ValidationPipeConfig));
-    app.useGlobalFilters(new HttpExceptionFilter());
+    appSettings(app)
     return app;
 }
